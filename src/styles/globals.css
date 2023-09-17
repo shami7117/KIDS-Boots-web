@@ -1,0 +1,201 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.elevated {
+  margin-top: -80px;
+  height: auto; /* Lifts the card slightly */
+}
+
+.lowered {
+  margin-top: 40px;
+  height: 300px; /* Pushes the card slightly down */
+}
+@media (min-width: 1024px) {
+  .big-image {
+    height: 900px;
+  }
+}
+
+
+
+/* styles.module.css */
+.app {
+  max-width: 1200px;
+  width: 100%;
+  margin: 100px auto;
+  box-shadow: 0 0 5px #ccc;
+}
+.details {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  padding: 30px 0;
+}
+.details .big-img {
+  max-width: 500px;
+  min-width: 290px;
+  overflow: hidden;
+  margin: 25px;
+}
+.big-img Image {
+  width: 100%;
+  height: 100%;
+  max-height: 400px;
+  display: block;
+  object-fit: cover;
+}
+
+.details .box {
+  max-width: 500px;
+  min-width: 290px;
+  margin: 25px;
+}
+.box .row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+.box .row h2 {
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+.box .row span {
+  color: crimson;
+}
+.box .colors button {
+  width: 30px;
+  height: 30px;
+  border: 1px solid #333;
+  outline: none;
+  margin-right: 5px;
+  cursor: pointer;
+}
+.box p {
+  line-height: 1.5;
+  margin: 15px 0;
+}
+.thumb {
+  display: flex;
+  gap: 20px;
+}
+
+.thumb-image {
+  width: 154px;
+  height: 158px;
+  opacity: 0.75;
+  border: 2px solid transparent;
+  border-radius: 10px;
+  background: #d14d721a;
+  transition: opacity 0.3s, border-color 0.3s;
+}
+
+.thumb-image.active {
+  opacity: 1;
+  border-color: #d14d72;
+  border-radius: 10px;
+}
+.box .cart {
+  background: #333;
+  color: white;
+  outline: none;
+  border: none;
+  cursor: pointer;
+  padding: 10px 25px;
+  margin-top: 15px;
+}
+.activeBar {
+  background-color: #1a9cda;
+  color: white;
+  width: 255px;
+}
+.dropdown-title {
+  color: white;
+}
+.container-faq {
+  width: full;
+  background: white;
+  border-radius: 2rem;
+  max-width: 700px;
+  display: grid;
+  gap: 1rem 2rem;
+}
+
+.main-faq {
+  /* using flex because of better browser support */
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-end;
+}
+.container > h3 {
+  line-height: 1.2;
+  font-weight: 500;
+}
+
+@media screen and (min-width: 300px){
+  .container-faq{
+    min-width: 290px;
+  }
+}
+@media screen and (min-width: 992px) {
+  .container {
+    display: grid;
+    grid-template-columns: 250px 1fr;
+    
+  }
+}
+.question {
+  padding: 1rem 1.5rem;
+  margin-bottom: 1rem;
+ 
+  border-radius: 2rem;
+  border: 1px solid rgb(205, 205, 205);
+  
+}
+.question > h4 {
+  text-transform: none;
+  line-height: 1.5;
+}
+.question > p {
+  color: hsl(0, 0%, 0%);
+  margin-bottom: 0;
+  margin-top: 0.5rem;
+}
+.question > header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.question > header > h4 {
+  margin-bottom: 0;
+}
+
+@media (max-width: 500px) {
+  .thumb {
+    height: 50px;
+  }
+  .thumb img {
+    width: 50px;
+  }
+}
+
+@media (max-width: 768px) {
+  .thumb {
+    flex-direction: row;
+    gap: 10px;
+  }
+
+  .thumb-image {
+    width: 50px; /* Make images span the container width */
+    height: auto; /* Automatically adjust height to maintain aspect ratio */
+    border-radius: 5px;
+  }
+  .thumb-image.active {
+    border-radius: 5px;
+  }
+  .activeBar {
+    background-color: #1a9cda;
+    color: white;
+    width: 80px;
+  }
+}
