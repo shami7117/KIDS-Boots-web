@@ -18,7 +18,6 @@ import Head from "next/head";
 import { SearchOutlined, DeleteOutlined, MoreOutlined } from "@ant-design/icons";
 import { useState, useEffect } from "react";
 import { FilterOutlined, EditOutlined } from "@ant-design/icons";
-import ProductModal from "./ProductModal";
 import EditModal from "./EditModal";
 const { Option } = Select;
 import { ThreeDots } from 'react-loader-spinner'
