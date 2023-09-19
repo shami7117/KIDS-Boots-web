@@ -10,7 +10,7 @@ import {
     where,
 } from "firebase/firestore";
 import { v4 as uuidv4 } from "uuid";
-import { db } from "../../firebase/firebase";
+import { db } from "../../Firebase/firebase";
 
 
 
@@ -94,12 +94,26 @@ const deleteUser = async (id) => {
 
 
 
+const getUserByUserId = async (userId) => {
+    const ref = collection(db, "Sellers");
+    const querySnapshot = await getDocs(ref);
+
+    for (const doc of querySnapshot.docs) {
+        if (doc.id === userId) {
+            const userData = { ...doc.data(), id: doc.id };
+            console.log(userData);
+            return userData;
+        }
+    }
+
+    return null; // No matching user found
+};
 
 
 
 const UsersApi = {
 
-    getUsers, updateUser, addUser, deleteUser
+    getUsers, updateUser, addUser, deleteUser, getUserByUserId
 };
 
 export default UsersApi;

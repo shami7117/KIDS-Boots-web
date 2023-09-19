@@ -7,14 +7,19 @@ import { useRouter } from "next/router";
 import { storage } from '../../../Firebase/firebase.js';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { auth, db } from "../../../Firebase/firebase.js";
-import 'react-notifications/lib/notifications.css';
-import { NotificationContainer, NotificationManager } from 'react-notifications';
+import { Button, Modal, Space } from 'antd';
 
+import {
+    notification
+} from "antd";
 import {
     collection,
     addDoc, doc, getDoc, setDoc,
 } from "firebase/firestore";
 const Storage = getStorage(storage);
+
+
+
 
 
 const ProductUpload = () => {
@@ -172,6 +177,15 @@ const ProductUpload = () => {
     };
 
     console.log("FILE", formData.file)
+    const success = () => {
+        Modal.success({
+            content: 'Your Product has been Uploaded !',
+
+            onOk() {
+                router.push('/product-listing')
+            },
+        });
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -237,8 +251,9 @@ const ProductUpload = () => {
                         popular: false,
                     };
                     await setDoc(docRef, values, { merge: true });
-                    NotificationManager.success("Product uploaded successfully!");
 
+
+                    success();
                     setFormData({
                         category: 'afo',
                         size: '',
@@ -252,13 +267,15 @@ const ProductUpload = () => {
                         description: '',
                         file: null
                     })
-                    router.push('/')
 
                 } catch (urlError) {
                     console.error('Error getting download URL:', urlError);
                     if (urlError === "FirebaseError: Firebase: Error (auth/email-already-in-use).") {
-                        NotificationManager.error("Email already used!");
-                        alert("Email already used!")
+                        notification.open({
+                            type: "error",
+                            message: 'Email already used!',
+                            placement: "top",
+                        });
 
                     }
 
@@ -267,7 +284,11 @@ const ProductUpload = () => {
 
             } catch (uploadError) {
                 console.error('Error uploading file:', uploadError);
-                NotificationManager.error(uploadError);
+                notification.open({
+                    type: "error",
+                    message: uploadError,
+                    placement: "top",
+                });
                 setLoading(false)
 
             }
@@ -289,11 +310,18 @@ const ProductUpload = () => {
                 // createNotification('error', "Email already user!")
                 // NotificationManager.error(error);
                 if (error === "FirebaseError: Firebase: Error (auth/email-already-in-use).") {
-                    NotificationManager.error("Email already used!");
-                    alert("Email already used!")
+                    notification.open({
+                        type: "error",
+                        message: 'Email already used!',
+                        placement: "top",
+                    });
 
                 } else {
-                    NotificationManager.error(error);
+                    notification.open({
+                        type: "error",
+                        message: error,
+                        placement: "top",
+                    });
 
                 }
                 console.log("CATCH ERROR", error)
@@ -309,7 +337,6 @@ const ProductUpload = () => {
 
     return (
         <div className="py-10 md:w-[900px] md:mx-auto md:px-10 px-5 flex flex-col justify-center mt-6 xl:mt-0 bg-white shadow-md ">
-            <NotificationContainer />
             <form onSubmit={(e) => { handleSubmit(e) }}>
                 <h1 className="text-2xl font-semibold mb-2">Upload Products</h1>
                 <p className="text-[16px] font-[500] text-[#000000] mb-8">
@@ -463,8 +490,8 @@ const ProductUpload = () => {
                 <div className='flex md:flex-row flex-col justify-between'>
                     <div className=''>
                         <p className='"text-[16px] font-[500] text-[#000000] mb-5'>Condition</p>
-                        <div className='flex gap-5'>
-                            <label className="flex gap-1 ">
+                        <div className='flex justify-center items-center gap-5'>
+                            <label className="flex justify-center items-center gap-1 ">
                                 <input
                                     onChange={(e) => { handleChange(e); }}
                                     checked={formData.condition === 'New'}
@@ -476,7 +503,7 @@ const ProductUpload = () => {
                                 />
                                 <span className="text-[16px] font-[400] text-[#777777]">New</span>
                             </label>
-                            <label className="flex gap-1 ">
+                            <label className="flex justify-center items-center gap-1 ">
                                 <input
                                     onChange={(e) => { handleChange(e); }}
                                     checked={formData.condition === 'Like New'}
@@ -488,7 +515,7 @@ const ProductUpload = () => {
                                 />
                                 <span className="text-[16px] font-[400] text-[#777777]">Like New</span>
                             </label>
-                            <label className="flex gap-1 ">
+                            <label className="flex justify-center items-center gap-1 ">
                                 <input
                                     onChange={(e) => { handleChange(e); }}
                                     checked={formData.condition === 'Used'}

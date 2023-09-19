@@ -6,7 +6,9 @@ import { InfinitySpin } from 'react-loader-spinner'
 import { useRouter } from "next/router";
 import { auth, db } from "../../../Firebase/firebase.js";
 import 'react-notifications/lib/notifications.css';
-import { NotificationContainer, NotificationManager } from 'react-notifications';
+import {
+  notification
+} from "antd";
 import {
   collection,
   addDoc, doc, getDoc, setDoc,
@@ -33,6 +35,20 @@ const UserReg = () => {
 
   });
 
+
+
+  const [selectedCountryCode, setSelectedCountryCode] = useState('');
+  const [fullNumber, setFullNumber] = useState('');
+
+  const handleCountryCodeChange = (e) => {
+    const countryCode = e.target.value;
+    setSelectedCountryCode(countryCode);
+    // setFullNumber(countryCode);
+    setFormData({
+      ...formData, // Spread the existing values
+      phone: countryCode, // Update only the phone value
+    });
+  };
   const [errors, setErrors] = useState({});
 
   const validationSchema = Yup.object().shape({
@@ -80,8 +96,8 @@ const UserReg = () => {
         const numberPart = value.slice(1); // Remove the '+' symbol
         return !isNaN(numberPart);
       })
-      .matches(/^\+\d{1,11}$/, 'Phone number should start with + and contain 1 to 11 digits')
-      .max(12, 'Phone number should not be more than 12 digits'),
+      .matches(/^\+\d{1,13}$/, 'Phone number should start with + and contain 1 to 13 digits')
+      .max(13, 'Phone number should not be more than 13 digits'),
 
     city: Yup.string()
       .required('City is required')
@@ -136,8 +152,8 @@ const UserReg = () => {
       const docRef = doc(collectionRef, user.uid);
 
       const values = {
-        fName: formData.fname,
-        lName: formData.lname,
+        firstName: formData.fname,
+        lastName: formData.lname,
         email: formData.email,
         postCode: formData.postCode,
         city: formData.city,
@@ -152,10 +168,12 @@ const UserReg = () => {
 
 
 
-      NotificationManager.success("Successfully Registered");
 
-
-
+      notification.open({
+        type: "success",
+        message: "Successfully Registered!",
+        placement: "top",
+      });
 
       router.push('/');
 
@@ -178,13 +196,29 @@ const UserReg = () => {
       }
       else {
         const message = error.message
-        var modifiedText = message.replace("Firebase:", '');
-        setErrors("");
+        if (error.message === "Firebase: Error (auth/email-already-in-use).") {
+          notification.open({
+            type: "error",
+            message: "Email already in use!",
+            placement: "top",
+          });
+          setErrors("");
 
-        NotificationManager.error(modifiedText);
+        }
+        else {
+          var modifiedText = message.replace("Firebase:", '');
+          setErrors("");
+
+          notification.open({
+            type: "error",
+            message: modifiedText,
+            placement: "top",
+          });
+        }
 
 
-        console.log("FIREBASE ERROR", error)
+
+        console.log(error.message)
 
 
         setLoading(false);
@@ -215,7 +249,6 @@ const UserReg = () => {
 
   return (
     <div className="py-10 md:w-[900px] md:mx-auto md:px-10 px-5 flex flex-col justify-center mt-6 xl:mt-0 bg-white shadow-md ">
-      <NotificationContainer />
       <form onSubmit={(e) => { handleSubmit(e) }}>
         <h1 className="text-2xl font-semibold">User Information</h1>
         <p className="text-[16px] font-[500] text-[#000000] mb-8">
@@ -303,15 +336,8 @@ const UserReg = () => {
         </div>
 
         <div>
-          <label className="block mb-6">
-            <span className="text-[16px] font-[500] text-[#000000]">Phone Number*</span>
-            <input
-              type="text"
-              name="phone"
-              value={formData.phone}
-              onChange={handleChange}
-
-              className="
+          <label htmlFor="country-code" className="text-[16px] font-[500] text-[#000000]">Enter Phone Number:</label>
+          <select className="
             block
             xl:w-full
             w-72
@@ -321,13 +347,51 @@ const UserReg = () => {
              
             rounded-md
 
-             p-2 bg-[#B4C7ED0D] border-[#2668E826]  border-2
+             py-2 px-3 bg-[#B4C7ED0D] border-[#2668E826]  border-2
+          " id="country-code" onChange={handleCountryCodeChange} value={selectedCountryCode}>
+            <option value="">Select a country code</option>
+            <option value="+1">United States (+1)</option>
+            <option value="+1">United States (+1)</option>
+            <option value="+44">United Kingdom (+44)</option>
+            <option value="+33">France (+33)</option>
+            <option value="+49">Germany (+49)</option>
+            <option value="+39">Italy (+39)</option>
+            <option value="+34">Spain (+34)</option>
+            <option value="+31">Netherlands (+31)</option>
+            <option value="+41">Switzerland (+41)</option>
+            <option value="+46">Sweden (+46)</option>
+            <option value="+47">Norway (+47)</option>
+            <option value="+91">India (+91)</option>
+            <option value="+92">Pakistan (+92)</option>
+
+          </select>
+
+          {/* <label htmlFor="full-number">Enter Full Number:</label> */}
+          <input
+            type="text"
+            id="phone"
+            name='phone'
+            className="
+            block
+            xl:w-full
+            w-72
+            mt-1
+            -mb-4
+            xl:mb-0
+             
+            rounded-md
+
+             py-2 px-3 bg-[#B4C7ED0D] border-[#2668E826]  border-2
           "
-              placeholder="+91 6787887 888"
-            />
-            {errors.phone && <div className="  px-1 justify-start text-[red] flex items-center  whitespace-nowrap rounded-lg  text-[black] mb-1 mt-1  mt-0">{errors.phone}</div>}
-          </label>
+            value={formData.phone}
+            readOnly={!selectedCountryCode}
+            onChange={handleChange}
+
+          />
+          {errors.phone && <div className="  px-1 justify-start text-[red] flex items-center  whitespace-nowrap rounded-lg  text-[black] mb-1 mt-1  mt-0">{errors.phone}</div>}
+
         </div>
+
 
         {/* =================== */}
 

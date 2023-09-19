@@ -1,5 +1,5 @@
 import Image from 'next/image'
-import React from 'react'
+import React, { useEffect } from 'react'
 import UpperHeader from './UpperHeader'
 import Link from 'next/link'
 import Wrapper from '../shared/Wrapper'
@@ -16,9 +16,47 @@ import { AiOutlineShoppingCart } from "react-icons/ai"
 import { AiOutlineHeart } from "react-icons/ai"
 import BottomHeader from './BottomHeader'
 import { HiOutlineLocationMarker } from 'react-icons/hi'
+import { UserOutlined } from '@ant-design/icons';
+import { Avatar } from 'antd';
+import { auth } from "../../../Firebase/firebase.js"
+import { DownOutlined } from '@ant-design/icons';
+import { Dropdown, Space, Divider, Button, theme } from 'antd';
+const { useToken } = theme;
+
+
+
+
+
 const Navbar = () => {
+
+
+    useEffect(() => {
+        const user = auth.currentUser;
+        const userId = user?.uid
+        if (userId !== undefined) {
+            setIsLoggedIn(true)
+        }
+        else {
+            setIsLoggedIn(false)
+        }
+        console.log("USER", userId);
+
+    })
+    const { token } = useToken();
+
     const [isOpen, setIsOpen] = useState(false);
-    const [isOp, setIsOp] = useState(false);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+    const contentStyle = {
+        backgroundColor: token.colorBgElevated,
+        borderRadius: token.borderRadiusLG,
+        boxShadow: token.boxShadowSecondary,
+    };
+    const menuStyle = {
+        boxShadow: 'none',
+    };
+
+
 
     const [nav, setNav] = useState(false);
     const [hoverIsOpen, hoverSetIsOpen] = useState(false);
@@ -85,6 +123,7 @@ const Navbar = () => {
                                         </div>
                                     </div>
                                     <button>
+
                                         <Link href="/product-listing" className='flex items-center gap-3'>
                                             <Image src={'/images/price.png'} alt="" width={300} height={300} className='h-[22px] w-[22px]' style={{
                                                 objectFit: 'contain',
@@ -107,20 +146,23 @@ const Navbar = () => {
 
                                 </div>
                                 <div className="flex text-[black] gap-6 cursor-pointer ">
-                                    <div className='p-2 rounded-full border border-[#0076AE1F] hover:bg-[#0076AE1F]'>
+                                    {isLoggedIn && <div className='p-2 rounded-full border border-[#0076AE1F] hover:bg-[#0076AE1F]'>
                                         <BsBell size={21} />
                                         <p className="bg-primary-pink-color h-[10px] w-[10px] border border-white rounded-full flex items-center justify-center text-white text-[9px] absolute mt-[-1.3rem] ml-[0.5rem]">
 
                                         </p>
-                                    </div>
-                                    <div>
-                                        <Link href={'/profile'}>
-                                            <Image src={'/images/men.jpeg'} alt='' width={200} height={200} className='w-[40px] h-[40px] rounded-full' style={{
-                                                width: '100%',
-                                                maxWidth: '100%',
-                                                objectFit: 'contain', // You can use other values like 'cover', 'contain', etc.
-                                            }} />
-                                        </Link>
+                                    </div>}
+                                    <div className='flex justify-center items-center'>
+                                        {
+                                            isLoggedIn ?
+                                                <Link href={'/profile'}>
+                                                    <Avatar size={34} icon={<UserOutlined />} />
+                                                </Link>
+
+                                                : <Link href={"/login"} >LogIn/Register</Link>
+                                        }
+
+
                                     </div>
                                     <Link href={'/shopping'} className='p-2 rounded-full border border-[#0076AE1F] hover:bg-[#0076AE1F]'>
                                         <BsCart3 size={21} />

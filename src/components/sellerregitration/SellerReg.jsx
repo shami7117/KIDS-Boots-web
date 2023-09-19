@@ -6,13 +6,15 @@ import {
     collection,
     addDoc, doc, getDoc, setDoc,
 } from "firebase/firestore";
+import {
+    notification
+} from "antd";
 import { auth, db } from "../../../Firebase/firebase.js";
 import { createUserWithEmailAndPassword, FirebaseAuthException } from "firebase/auth"
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { useRouter } from 'next/router.js';
 import { InfinitySpin } from 'react-loader-spinner'
 import 'react-notifications/lib/notifications.css';
-import { NotificationContainer, NotificationManager } from 'react-notifications';
 
 
 const SellerReg = () => {
@@ -22,7 +24,18 @@ const SellerReg = () => {
     const [loading, setLoading] = useState(false);
     const [isRegister, setRegister] = useState(false);
 
+    const [selectedCountryCode, setSelectedCountryCode] = useState('');
+    const [fullNumber, setFullNumber] = useState('');
 
+    const handleCountryCodeChange = (e) => {
+        const countryCode = e.target.value;
+        setSelectedCountryCode(countryCode);
+        // setFullNumber(countryCode);
+        setFormData({
+            ...formData, // Spread the existing values
+            phone: countryCode, // Update only the phone value
+        });
+    };
     const [formData, setFormData] = useState({
         fname: '',
         lname: '',
@@ -78,7 +91,7 @@ const SellerReg = () => {
                 const numberPart = value.slice(1); // Remove the '+' symbol
                 return !isNaN(numberPart);
             })
-            .matches(/^\+\d{1,11}$/, 'Phone number should start with + and contain 1 to 11 digits')
+            .matches(/^\+\d{1,13}$/, 'Phone number should start with + and contain 1 to 13 digits')
             .max(13, 'Phone number should not be more than 13 digits'),
         shop: Yup.string()
             .required('Shop Name is required')
@@ -133,7 +146,7 @@ const SellerReg = () => {
                 const numberPart = value.slice(1); // Remove the '+' symbol
                 return !isNaN(numberPart);
             })
-            .matches(/^\+\d{1,11}$/, 'Phone number should start with + and contain 1 to 11 digits')
+            .matches(/^\+\d{1,13}$/, 'Phone number should start with + and contain 1 to 13 digits')
             .max(13, 'Phone number should not be more than 13 digits'),
         password1: Yup.string()
             .required('Password is required')
@@ -193,12 +206,12 @@ const SellerReg = () => {
             const docRef = doc(collectionRef, user.uid);
 
             const values = {
-                fName: formData.fname,
+                firstName: formData.fname,
                 email: formData.email,
-                lName: formData.lname,
+                lastName: formData.lname,
                 shop: formData.shop,
                 country: formData.country,
-                phone: formData.phone,
+                phone: fullNumber,
                 register: formData.register,
                 address: formData.address
             };
@@ -209,9 +222,12 @@ const SellerReg = () => {
 
 
 
-            NotificationManager.success("Successfully Registered");
 
-
+            notification.open({
+                type: "success",
+                message: "Successfully Registered!",
+                placement: "top",
+            });
 
 
             router.push('/product-upload');
@@ -233,13 +249,29 @@ const SellerReg = () => {
             }
             else {
                 const message = error.message
-                var modifiedText = message.replace("Firebase:", '');
-                setErrors("");
+                if (error.message === "Firebase: Error (auth/email-already-in-use).") {
+                    notification.open({
+                        type: "error",
+                        message: "Email already in use!",
+                        placement: "top",
+                    });
+                    setErrors("");
 
-                NotificationManager.error(modifiedText);
+                }
+                else {
+                    var modifiedText = message.replace("Firebase:", '');
+                    setErrors("");
+
+                    notification.open({
+                        type: "error",
+                        message: modifiedText,
+                        placement: "top",
+                    });
+                }
 
 
-                console.log("FIREBASE ERROR", error)
+
+                console.log(error.message)
 
 
                 setLoading(false);
@@ -271,7 +303,6 @@ const SellerReg = () => {
 
     return (
         <div className="py-10 md:w-[900px] md:mx-auto md:px-10 px-5 flex flex-col justify-center mt-6 xl:mt-0 bg-white shadow-md ">
-            <NotificationContainer />
             <form onSubmit={(e) => { handleSubmit(e) }}>
                 <h1 className="text-2xl font-semibold">Seller Information</h1>
                 <p className="text-[16px] font-[400] text-[#777777] mb-8">
@@ -361,7 +392,7 @@ const SellerReg = () => {
                     </label>
                 </div>
 
-                <div>
+                {/* <div>
                     <label className="block mb-6">
                         <span className="text-[16px] font-[500] text-[black]">Phone Number*</span>
                         <input
@@ -384,8 +415,64 @@ const SellerReg = () => {
           "
                             placeholder="+91 6787887 888"
                         />
-                        {errors.phone && <div className="  px-1 justify-start text-[red] flex items-center  whitespace-nowrap rounded-lg  text-[black] mb-1 mt-1  mt-0">{errors.phone}</div>}
                     </label>
+                </div> */}
+
+                <div>
+                    <label htmlFor="country-code">Enter Phone Number:</label>
+                    <select className="
+            block
+            xl:w-full
+            w-72
+            mt-1
+            -mb-4
+            xl:mb-0
+             
+            rounded-md
+
+             py-2 px-3 bg-[#B4C7ED0D] border-[#2668E826]  border-2
+          " id="country-code" onChange={handleCountryCodeChange} value={selectedCountryCode}>
+                        <option value="">Select a country code</option>
+                        <option value="+1">United States (+1)</option>
+                        <option value="+1">United States (+1)</option>
+                        <option value="+44">United Kingdom (+44)</option>
+                        <option value="+33">France (+33)</option>
+                        <option value="+49">Germany (+49)</option>
+                        <option value="+39">Italy (+39)</option>
+                        <option value="+34">Spain (+34)</option>
+                        <option value="+31">Netherlands (+31)</option>
+                        <option value="+41">Switzerland (+41)</option>
+                        <option value="+46">Sweden (+46)</option>
+                        <option value="+47">Norway (+47)</option>
+                        <option value="+91">India (+91)</option>
+                        <option value="+92">Pakistan (+92)</option>
+
+                    </select>
+
+                    {/* <label htmlFor="full-number">Enter Full Number:</label> */}
+                    <input
+                        type="text"
+                        id="phone"
+                        name='phone'
+                        className="
+            block
+            xl:w-full
+            w-72
+            mt-1
+            -mb-4
+            xl:mb-0
+             
+            rounded-md
+
+             py-2 px-3 bg-[#B4C7ED0D] border-[#2668E826]  border-2
+          "
+                        value={formData.phone}
+                        readOnly={!selectedCountryCode}
+                        onChange={handleChange}
+
+                    />
+                    {errors.phone && <div className="  px-1 justify-start text-[red] flex items-center  whitespace-nowrap rounded-lg  text-[black] mb-1 mt-1  mt-0">{errors.phone}</div>}
+
                 </div>
 
                 {/* =================== */}
