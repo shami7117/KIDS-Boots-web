@@ -13,10 +13,11 @@ import {
     addDoc, doc, getDoc, setDoc,
 } from "firebase/firestore";
 import { auth, db } from "../../../Firebase/firebase.js";
-import 'react-notifications/lib/notifications.css';
-import { NotificationContainer, NotificationManager } from 'react-notifications';
+import { notification } from 'antd';
+import { useRouter } from 'next/router';
 
 const ContactUs = () => {
+    const router = useRouter()
     const [errors, setErrors] = useState({});
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
@@ -28,7 +29,7 @@ const ContactUs = () => {
 
 
     const validationSchema = Yup.object().shape({
-        name: Yup.string()
+        fullName: Yup.string()
             .required('First Name is required')
             .test('not-email', 'Name cannot be an email', value => {
                 // Check if the value does not look like an email address
@@ -56,7 +57,6 @@ const ContactUs = () => {
             [name]: value,
         }));
     };
-
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -69,7 +69,7 @@ const ContactUs = () => {
             const docRef = doc(collectionRef, uuidv4());
 
             const values = {
-                name: formData.name,
+                name: formData.fullName,
                 email: formData.email,
 
                 subject: formData.subject,
@@ -80,11 +80,11 @@ const ContactUs = () => {
 
 
 
-
-
-            NotificationManager.success("Successfully Registered");
-
-
+            notification.open({
+                type: "success",
+                message: "Successfully submitted!",
+                placement: "top",
+            });
 
 
             router.push('/');
@@ -109,10 +109,17 @@ const ContactUs = () => {
                 var modifiedText = message.replace("Firebase:", '');
                 setErrors("");
 
-                NotificationManager.error(modifiedText);
+
+                notification.open({
+                    type: "error",
+                    message: modifiedText,
+                    placement: "top",
+                });
 
 
-                console.log("FIREBASE ERROR", error)
+
+
+                console.log(error)
 
 
                 setLoading(false);
@@ -130,7 +137,6 @@ const ContactUs = () => {
 
     return (
         <Wrapper>
-            <NotificationContainer />
 
             <div className='pt-4'>
                 <Layout>
@@ -206,14 +212,14 @@ const ContactUs = () => {
                             </label>
                             <input
                                 type='text'
-                                id='name'
-                                name='name'
+                                id='fullName'
+                                name='fullName'
                                 className='w-full border border-[#D1D5DB] rounded-md p-2'
                                 onChange={handleChange}
                                 value={formData.fullName}
                                 placeholder="James Williams"
                             />
-                            {errors.name && <div className="  px-1 justify-start text-[red] flex items-center  whitespace-nowrap rounded-lg  text-[#000000] mb-1 mt-1  mt-0">{errors.name}</div>}
+                            {errors.fullName && <div className="  px-1 justify-start text-[red] flex items-center  whitespace-nowrap rounded-lg  text-[#000000] mb-1 mt-1  mt-0">{errors.fullName}</div>}
                         </div>
                         <div className='mb-3'>
                             <label className='block text-[#000000] font-[16px] mb-1' htmlFor='email'>

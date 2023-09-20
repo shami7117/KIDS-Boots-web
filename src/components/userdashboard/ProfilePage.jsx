@@ -232,6 +232,7 @@ const ProfilePage = () => {
 
 
 
+      setErrors({});
 
 
 
@@ -377,7 +378,7 @@ const ProfilePage = () => {
                     alt="Email Icon"
                   />
                 </div>
-                <p className="md:text-[14px] text-[12px] font-[400]">{data !== null ? data.email : BuyerData?.email}</p>
+                <p className="md:text-[14px] text-[12px]  font-[400]">{data !== null ? data.email : BuyerData?.email}</p>
               </div>
               <div className="flex items-center my-2">
                 <div className=" relative w-5 h-5 mr-3">
@@ -446,6 +447,23 @@ const ProfilePage = () => {
                 </div>
                 <div>
                   <label
+                    htmlFor="phone"
+                    className="text-[16px] font-normal text-[#777777]"
+                  >
+                    Phone
+                  </label>
+                  <input
+                    type="tel"
+                    id="phone"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    className="w-full py-2 px-3 border border-[#2668E81A] rounded transition duration-300 bg-[#2668E803] focus:outline-none focus:border-[#2668E855] hover:border-[#2668E855]"
+                  />
+                  {errors.phone && <div className="  px-1 justify-start text-[red] max-w-[100px] w-full flex items-center  whitespace-nowrap rounded-lg  text-[black] mb-1 mt-1  mt-0">{errors.phone}</div>}
+                </div>
+                <div>
+                  <label
                     htmlFor="email"
                     className="text-[16px] font-normal text-[#777777]"
                   >
@@ -461,23 +479,7 @@ const ProfilePage = () => {
                   />
                   {errors.email && <div className="  px-1 justify-start text-[red] flex items-center  whitespace-nowrap rounded-lg  text-[black] mb-1 mt-1  mt-0">{errors.email}</div>}
                 </div>
-                <div>
-                  <label
-                    htmlFor="phone"
-                    className="text-[16px] font-normal text-[#777777]"
-                  >
-                    Phone
-                  </label>
-                  <input
-                    type="tel"
-                    id="phone"
-                    name="phone"
-                    value={formData.phone}
-                    onChange={handleChange}
-                    className="w-full py-2 px-3 border border-[#2668E81A] rounded transition duration-300 bg-[#2668E803] focus:outline-none focus:border-[#2668E855] hover:border-[#2668E855]"
-                  />
-                  {errors.phone && <div className="  px-1 justify-start text-[red] flex items-center  whitespace-nowrap rounded-lg  text-[black] mb-1 mt-1  mt-0">{errors.phone}</div>}
-                </div>
+
                 <div>
                   <label
                     htmlFor="country"

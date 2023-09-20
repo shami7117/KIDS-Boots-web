@@ -15,7 +15,9 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { useRouter } from 'next/router.js';
 import { InfinitySpin } from 'react-loader-spinner'
 import 'react-notifications/lib/notifications.css';
+import { Select } from 'antd';
 
+const { Option } = Select;
 
 const SellerReg = () => {
     const router = useRouter();
@@ -483,6 +485,8 @@ const SellerReg = () => {
                                 <option value="UK">UK</option>
                                 <option value="CANADA">CANADA</option>
                             </select>
+
+
                             {errors.country && <div className="  px-1 justify-start text-[red] flex items-center  whitespace-nowrap rounded-lg  text-[black] mb-1 mt-1  mt-0">{errors.country}</div>}
                         </label>
                     </div>
@@ -491,9 +495,9 @@ const SellerReg = () => {
                     <div>
                         <label className="block mb-6">
                             <span className="text-[16px] font-[500] text-[black]">Register as*</span>
+
                             <select
-                                value={formData.register}
-                                onChange={handleChange}
+
                                 name="register"
                                 placeholder='Select Category'
                                 className="
