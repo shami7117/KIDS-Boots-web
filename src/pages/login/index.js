@@ -211,12 +211,12 @@ const Index = () => {
                         />
                         Remember me
                       </label>
-                      <a
+                      {/* <a
                         href="#"
                         className="text-primary-pink-color hover:underline"
                       >
                         Forgot Password?
-                      </a>
+                      </a> */}
                     </div>
                     <div className="flex justify-center items-center">
                       {
@@ -232,7 +232,7 @@ const Index = () => {
                           backgroundColor="#F4442E"
                         /> : <button
                           type="submit"
-                          className="w-full bg-primary-pink-color text-white py-2 rounded-md hover:bg-primary-pink-color/90"
+                          className="w-full  bg-primary-pink-color text-white py-2 rounded-md hover:bg-primary-pink-color/90"
 
                         >
                           Log In

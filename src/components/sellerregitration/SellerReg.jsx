@@ -365,6 +365,68 @@ const SellerReg = () => {
                     </div>
                 </div>
 
+                <div className='my-4 gap-12 xl:flex xl:justify-between'>
+                    <div className="w-full mb-4 block">
+                        <label htmlFor="country-code" className="text-[16px] font-[500] text-[#000000]">Enter Phone Code:</label>
+
+                        <select className="
+            block
+            xl:w-full
+            w-72
+            mt-1
+            -mb-4
+            xl:mb-0
+             
+            rounded-md
+
+             py-2.5 px-3 bg-[#B4C7ED0D] border-[#2668E826]  border-2
+          " id="country-code" onChange={handleCountryCodeChange} value={selectedCountryCode}>
+                            <option value="">Select a country code</option>
+                            <option value="+1">United States (+1)</option>
+                            <option value="+1">United States (+1)</option>
+                            <option value="+44">United Kingdom (+44)</option>
+                            <option value="+33">France (+33)</option>
+                            <option value="+49">Germany (+49)</option>
+                            <option value="+39">Italy (+39)</option>
+                            <option value="+34">Spain (+34)</option>
+                            <option value="+31">Netherlands (+31)</option>
+                            <option value="+41">Switzerland (+41)</option>
+                            <option value="+46">Sweden (+46)</option>
+                            <option value="+47">Norway (+47)</option>
+                            <option value="+91">India (+91)</option>
+                            <option value="+92">Pakistan (+92)</option>
+
+                        </select>
+                    </div>
+                    <div className="w-full mb-4 block">
+                        <label htmlFor="full-number" className="text-[16px] font-[500] text-[#000000]">Enter Full Number:</label>
+                        <input
+                            placeholder='Phone Number'
+                            type="text"
+                            id="phone"
+                            name='phone'
+                            className="
+            block
+            xl:w-full
+            w-72
+            mt-1
+            -mb-4
+            xl:mb-0
+             
+            rounded-md
+
+             py-2 px-3 bg-[#B4C7ED0D] border-[#2668E826]  border-2
+          "
+                            value={formData.phone}
+                            readOnly={!selectedCountryCode}
+                            onChange={handleChange}
+
+                        />
+                        {errors.phone && <div className="  px-1 justify-start text-[red] flex items-center  whitespace-nowrap rounded-lg  text-[black] mb-1 mt-1  mt-0">{errors.phone}</div>}
+                    </div>
+
+                </div>
+
                 <div>
                     <label className="block md:mt-0 mt-6 mb-6">
                         <span className="text-[16px] font-[500] text-[black]">Email Address*</span>
@@ -392,88 +454,6 @@ const SellerReg = () => {
                     </label>
                 </div>
 
-                {/* <div>
-                    <label className="block mb-6">
-                        <span className="text-[16px] font-[500] text-[black]">Phone Number*</span>
-                        <input
-                            value={formData.phone}
-                            onChange={handleChange}
-                            type="text"
-                            name="phone"
-
-                            className="
-            block
-            xl:w-full
-            w-72
-            mt-1
-            -mb-4
-            xl:mb-0
-             
-            rounded-md
-
-             py-2 px-3 bg-[#B4C7ED0D] border-[#2668E826]  border-2
-          "
-                            placeholder="+91 6787887 888"
-                        />
-                    </label>
-                </div> */}
-
-                <div>
-                    <label htmlFor="country-code">Enter Phone Number:</label>
-                    <select className="
-            block
-            xl:w-full
-            w-72
-            mt-1
-            -mb-4
-            xl:mb-0
-             
-            rounded-md
-
-             py-2 px-3 bg-[#B4C7ED0D] border-[#2668E826]  border-2
-          " id="country-code" onChange={handleCountryCodeChange} value={selectedCountryCode}>
-                        <option value="">Select a country code</option>
-                        <option value="+1">United States (+1)</option>
-                        <option value="+1">United States (+1)</option>
-                        <option value="+44">United Kingdom (+44)</option>
-                        <option value="+33">France (+33)</option>
-                        <option value="+49">Germany (+49)</option>
-                        <option value="+39">Italy (+39)</option>
-                        <option value="+34">Spain (+34)</option>
-                        <option value="+31">Netherlands (+31)</option>
-                        <option value="+41">Switzerland (+41)</option>
-                        <option value="+46">Sweden (+46)</option>
-                        <option value="+47">Norway (+47)</option>
-                        <option value="+91">India (+91)</option>
-                        <option value="+92">Pakistan (+92)</option>
-
-                    </select>
-
-                    {/* <label htmlFor="full-number">Enter Full Number:</label> */}
-                    <input
-                        type="text"
-                        id="phone"
-                        name='phone'
-                        className="
-            block
-            xl:w-full
-            w-72
-            mt-1
-            -mb-4
-            xl:mb-0
-             
-            rounded-md
-
-             py-2 px-3 bg-[#B4C7ED0D] border-[#2668E826]  border-2
-          "
-                        value={formData.phone}
-                        readOnly={!selectedCountryCode}
-                        onChange={handleChange}
-
-                    />
-                    {errors.phone && <div className="  px-1 justify-start text-[red] flex items-center  whitespace-nowrap rounded-lg  text-[black] mb-1 mt-1  mt-0">{errors.phone}</div>}
-
-                </div>
 
                 {/* =================== */}
 

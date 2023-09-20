@@ -144,6 +144,16 @@ function EditModal({ visible, onCancel, onOk, editForm, selectedPromoCode, props
 
 
         <Form.Item
+          name="percent"
+          label="Percentage"
+          rules={[{ required: true, message: 'Enter Percentage ' }]}
+        >
+          <Input type='number' placeholder="Enter Percentage" />
+
+
+        </Form.Item>
+
+        <Form.Item
           name="products"
           label="Products"
 

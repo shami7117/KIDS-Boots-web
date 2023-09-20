@@ -65,7 +65,7 @@ function BuyerModal({ visible, onCancel, onSubmit }) {
     }
   );
 
-  console.log(lengthData)
+  console.log("PRODUCTS", lengthData)
 
 
   const [status, setStatus] = useState('Default');
@@ -135,8 +135,8 @@ function BuyerModal({ visible, onCancel, onSubmit }) {
       <Form
         onFinish={handleSubmit}
         layout="vertical" >
-        <Form.Item name="promo" label="Promo code" rules={[{ required: true, message: 'Enter Promo code' }]}>
-          <Input placeholder="Enter Promo code" />
+        <Form.Item name="promo" label="Active text" rules={[{ required: true, message: 'Enter Active text' }]}>
+          <Input placeholder="Enter Active text" />
         </Form.Item>
 
 
@@ -149,26 +149,22 @@ function BuyerModal({ visible, onCancel, onSubmit }) {
           <Select mode="multiple" placeholder="Select Products" >
 
             {lengthData?.map((item) => (
-              <Option key={[item.category, item.id]}>{item.category}</Option>
+              <Option key={[item?.product, item?.id]}>{item?.product}</Option>
             ))}
           </Select>
 
 
         </Form.Item>
 
-        {/* <Form.Item
-          name="status"
-          label="Status"
-          rules={[{ required: true, message: 'Select Status ' }]}
+        <Form.Item
+          name="percent"
+          label="Percentage"
+          rules={[{ required: true, message: 'Enter Percentage ' }]}
         >
-          <Select placeholder="Select City" >
-
-            <Option key="Enable" values="Enable">Enable</Option>
-            <Option key="Disable" values="Disable">Disable</Option>
-          </Select>
+          <Input type='number' placeholder="Enter Percentage" />
 
 
-        </Form.Item> */}
+        </Form.Item>
 
         <Form.Item
           name="time"

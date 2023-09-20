@@ -251,6 +251,8 @@ const ProductPage = () => {
 
                   <button onClick={() => {
                     data['userId'] = userId
+                    data['productId'] = data.id;
+
                     addMutation.mutate(data)
                   }} className="mt-8 w-full md:w-[466px] h-[46px] bg-primary-pink-color rounded-[5px] text-white">Add to cart</button>
 

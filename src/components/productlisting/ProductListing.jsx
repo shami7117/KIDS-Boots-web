@@ -17,15 +17,18 @@ import { NotificationContainer, NotificationManager } from 'react-notifications'
 import CartApi from '@/lib/cart'
 import 'react-notifications/lib/notifications.css';
 import { ThreeDots } from 'react-loader-spinner'
+import { useRouter } from 'next/router'
+import { notification } from 'antd'
 
 
 
 
 
 const ProductListing = () => {
-  const [Filter, setFilter] = useState(null);
-  const [heart, setHeart] = useState(false);
+  const router = useRouter();
 
+  const [Filter, setFilter] = useState({});
+  const [heart, setHeart] = useState(false);
 
 
   const queryClient = useQueryClient();
@@ -200,6 +203,36 @@ const ProductListing = () => {
     },
   ])
 
+  const addCartMutation = useMutation(
+    ["CartAdded"],
+    async (data) => {
+      console.log("MUTATION", data)
+      return await CartApi.addCart(data);
+    },
+    {
+      onError: (data) => { },
+      onSuccess: (data) => {
+
+        queryClient.invalidateQueries(["CartAdded"]);
+        if (data?.code === 1) {
+          notification.open({
+            type: "success",
+            message: "Added in Cart!",
+            placement: "top",
+          });
+        } else {
+          notification.open({
+            type: "info",
+            message: "Product is already available in cart",
+            placement: "top",
+          });
+
+        }
+
+      },
+    }
+  );
+
   // const itemsPerPage = 4;
   // const totalPosts = data.length;
   // const totalPages = Math.ceil(totalPosts / itemsPerPage);
@@ -276,6 +309,24 @@ const ProductListing = () => {
     // console.log("NEW VALUE", newValue)
   };
   console.log("NEW VALUE", Filter)
+
+
+
+  // Access the query parameter named "afo"
+  const afoQueryParam = router?.query?.category;
+  const country = router?.query?.country;
+  console.log("CATEGORY", afoQueryParam)
+
+
+  if (afoQueryParam !== undefined && Filter?.category !== null) {
+
+    Filter.category = afoQueryParam;
+  }
+
+  // if (country !== undefined && country !== null) {
+  //   Filter.country = country
+  // }
+
   const { data: BootsData, isLoading: BootsLoading, isError } = useQuery(
     ['Products', Filter],
     async () => {
@@ -286,6 +337,7 @@ const ProductListing = () => {
     }
   );
   console.log("PRODUCTS", BootsData)
+  console.log("FILTER", Filter)
 
 
   // if (isLoading) {
@@ -349,11 +401,16 @@ const ProductListing = () => {
                             <div className='bg-[#2A2F4F] h-[45px] w-[51px] flex items-center justify-center bottom-0'>
                               <RiArrowLeftRightLine size={20} className='text-white' />
                             </div>
-                            <Link href={``}>
-                              <button className='bg-[#A51F6C] text-white h-[45px] w-[175px] flex items-center justify-center bottom-0'>
-                                Add to Cart
-                              </button>
-                            </Link>
+
+                            <button onClick={() => {
+                              card['userId'] = userId;
+                              card['productId'] = card.id;
+                              addCartMutation.mutate(card)
+
+                            }} className='bg-[#A51F6C] text-white h-[45px] w-[175px] flex items-center justify-center bottom-0'>
+                              Add to Cart
+                            </button>
+
                             <div className='bg-[#2A2F4F] h-[45px] w-[51px] flex items-center justify-center bottom-0'>
                               {card.isHeartFilled ? (
                                 <AiFillHeart

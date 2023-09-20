@@ -86,8 +86,18 @@ const Index = () => {
         }
 
     );
+    const { data: AllDATA, isLoading: AllLoading, isError: ALLERROR } = useQuery(
+        ['PromoCode'],
+        async () => {
 
-    console.log("PROMOS", data)
+            const response = await PromoCodeApi.getAllPromoCodes();
+            return response;// Assuming your API returns data property
+
+        }
+
+    );
+
+    console.log("ALL PROMOS", AllDATA)
 
 
     const PromoCodes = [

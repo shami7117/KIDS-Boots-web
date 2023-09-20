@@ -22,7 +22,8 @@ import { auth } from "../../../Firebase/firebase.js"
 import { DownOutlined } from '@ant-design/icons';
 import { Dropdown, Space, Divider, Button, theme } from 'antd';
 const { useToken } = theme;
-
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import PromoCodeApi from "@/lib/promo";
 
 
 
@@ -42,6 +43,37 @@ const Navbar = () => {
         console.log("USER", userId);
 
     })
+
+
+
+    const { data: AllDATA, isLoading: AllLoading, isError: ALLERROR } = useQuery(
+        ['PromoCode'],
+        async () => {
+
+            const response = await PromoCodeApi.getAllPromoCodes();
+            return response;// Assuming your API returns data property
+
+        }
+
+    );
+
+    const arrayOfArrays = AllDATA?.map((item) => { return item?.PRODUCT_IDs });
+
+    if (arrayOfArrays) {
+        const resultObject = {};
+
+        for (const subArray of arrayOfArrays) {
+            for (const id of subArray) {
+                resultObject[id] = true;
+            }
+        }
+
+        const resultArray = Object.keys(resultObject).map(Number);
+
+        console.log("RESULT", resultArray)
+    }
+    console.log("ALL PROMOS", AllDATA)
+
     const { token } = useToken();
 
     const [isOpen, setIsOpen] = useState(false);
@@ -159,7 +191,7 @@ const Navbar = () => {
                                                     <Avatar size={34} icon={<UserOutlined />} />
                                                 </Link>
 
-                                                : <Link href={"/login"} >LogIn/Register</Link>
+                                                : <Link href={"/login"} >LogIn</Link>
                                         }
 
 
@@ -280,20 +312,21 @@ const Navbar = () => {
                                             </div>
                                         </div>
                                         <div className="mt-[7rem] flex text-[black] gap-6 cursor-pointer  ">
-                                            <div className='p-2 rounded-full border border-[#0076AE1F] hover:bg-[#0076AE1F]'>
+                                            {isLoggedIn && <div className='p-2 rounded-full border border-[#0076AE1F] hover:bg-[#0076AE1F]'>
                                                 <BsBell size={21} />
                                                 <p className="bg-primary-pink-color h-[10px] w-[10px] border border-white rounded-full flex items-center justify-center text-white text-[9px] absolute mt-[-1.3rem] ml-[0.5rem]">
 
                                                 </p>
-                                            </div>
+                                            </div>}
                                             <div >
-                                                <Link href={'/profile'} onClick={closeMenu}>
-                                                    <Image src={'/images/men.jpeg'} alt='' width={200} height={200} className='w-[40px] h-[40px] rounded-full' style={{
-                                                        width: '100%',
-                                                        maxWidth: '100%',
-                                                        objectFit: 'contain', // You can use other values like 'cover', 'contain', etc.
-                                                    }} />
-                                                </Link>
+                                                {
+                                                    isLoggedIn ?
+                                                        <Link href={'/profile'}>
+                                                            <Avatar size={34} icon={<UserOutlined />} />
+                                                        </Link>
+
+                                                        : <Link href={"/login"} >LogIn</Link>
+                                                }
                                             </div>
                                             <div className='p-2 rounded-full border border-[#0076AE1F] hover:bg-[#0076AE1F]'>
                                                 <BsCart3 size={21} />

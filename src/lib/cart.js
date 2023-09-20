@@ -19,35 +19,29 @@ const addCart = async (data) => {
     let q = query(snapshot, where("id", "==", data.id));
     const CartExist = await getDocs(q);
 
-    if (CartExist.docs.length > 0) {
-        return {
-            message: "Cart already exist!",
+    const ref = doc(db, "Carts", uuidv4());
+    const dataToSet = {
+        ...data,
+        createdAt: new Date(), // Replace undefined with a valid timestamp or other appropriate value
+    };
+
+
+    // Use addDoc to add a new document to the collection
+    const newDocRef = await addDoc(collection(db, "Carts"), dataToSet);
+
+    // Retrieve the newly added document to get its data and ID
+    const res = await getDoc(newDocRef);
+    return res.data()
+        ? {
+            data: { ...res.data(), id: res.id },
+            message: "Cart added successfully!",
+            code: 1,
+        }
+        : {
+            message: "Something went wrong!",
             code: 0,
         };
-    } else {
-        const ref = doc(db, "Carts", uuidv4());
-        const dataToSet = {
-            ...data,
-            createdAt: new Date(), // Replace undefined with a valid timestamp or other appropriate value
-        };
 
-
-        // Use addDoc to add a new document to the collection
-        const newDocRef = await addDoc(collection(db, "Carts"), dataToSet);
-
-        // Retrieve the newly added document to get its data and ID
-        const res = await getDoc(newDocRef);
-        return res.data()
-            ? {
-                data: { ...res.data(), id: res.id },
-                message: "Cart added successfully!",
-                code: 1,
-            }
-            : {
-                message: "Something went wrong!",
-                code: 0,
-            };
-    }
 
     return CartExist
 };
@@ -173,29 +167,35 @@ const getFeaturedCarts = async () => {
 
 
 // Get Single Cart
-const getCartById = async (CartId) => {
-    const ref = doc(db, "Carts", CartId);
+const getCartsByIds = async (CartId) => {
+    const carts = [];
+    const ref = collection(db, "Carts");
+
+    const q = query(ref, where("userId", "==", CartId));
 
     try {
-        const docSnap = await getDoc(ref);
+        console.log("API ID", CartId)
 
-        if (docSnap.exists()) {
-            const data = docSnap.data();
-            return {
-                ...data,
-                id: docSnap.id,
-                createdAt: data?.createdAt?.toDate()?.toString(),
-            };
-        } else {
-            // Handle the case where the Cart with the given ID does not exist.
-            return null;
-        }
+        const querySnapshot = await getDocs(q);
+
+        querySnapshot.forEach((doc) => {
+            if (doc.exists()) {
+                const data = doc.data();
+                carts.push({
+                    ...data,
+                    id: doc.id,
+                    createdAt: data?.createdAt?.toDate()?.toString(),
+                });
+            }
+        });
     } catch (error) {
         // Handle any errors that may occur during the retrieval.
         console.error("Error getting Cart by ID:", error);
-        throw error;
+        // You might want to handle this error differently.
     }
-};
+
+    return carts;
+}
 
 
 
@@ -204,26 +204,17 @@ const getCartById = async (CartId) => {
 // Delete Cart
 const deleteCart = async (id) => {
     try {
-        // Get a reference to the document with the specified id
-        const q = query(collection(db, 'Carts'), where('id', '==', id));
-        const querySnapshot = await getDocs(q);
-
-        // Check if the document exists
-        if (querySnapshot.size === 0) {
-            console.error(`Document with id ${id} not found.`);
-            return null; // or throw an error if appropriate
-        }
-
-        // Delete the document
-        const docRef = querySnapshot.docs[0].ref;
-        await deleteDoc(docRef);
-        console.log(`Document with id ${id} has been deleted.`);
+        console.log("DELETED", id)
+        const ref = doc(db, "Carts", id);
+        await deleteDoc(ref);
+        console.log("DELETED")
         return id;
     } catch (error) {
         console.error('Error deleting document:', error);
         throw error;
     }
 };
+;
 
 // Update Cart Status
 const activateCart = async (Cart) => {
@@ -290,7 +281,7 @@ const CartApi = {
     activateCart,
     deActivateCart,
     deleteCart,
-    getCartById,
+    getCartsByIds,
     getPopularCarts,
     getFeaturedCarts,
     getCategoryWiseCarts,

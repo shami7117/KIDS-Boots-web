@@ -66,7 +66,7 @@ const getPromo = async (couponValue) => {
             }
 
         });
-        console.log("API DATA", docs);
+        // console.log("API DATA", docs);
         return docs;
     }
 };
@@ -140,13 +140,53 @@ const deActivatePromo = async (Promo) => {
     return data;
 };
 
+
+const getAllPromoCodes = async () => {
+    const ref = collection(db, "PromoCode");
+    const res = await getDocs(ref);
+    let promoCodes = [];
+
+    if (res.docs.length <= 0) {
+        console.log("All NOT WORKING");
+        return [];
+    } else {
+        res.forEach((doc) => {
+            const data = doc.data();
+            const productIds = [];
+
+            // Assuming products is an array of objects with a name and id field
+            if (data.products && Array.isArray(data.products)) {
+                data.products.forEach((product) => {
+                    // Assuming product name and id are concatenated as "name_id"
+                    const parts = product.split(",");
+                    if (parts.length === 2) {
+                        const productId = parts[1];
+                        productIds.push(productId);
+                    }
+                });
+            }
+
+            // Add the productIds array to the promo code data
+            promoCodes.push({ ...data, id: doc.id, PRODUCT_IDs: productIds });
+        });
+
+        console.log("All Promo Codes", promoCodes);
+
+        return promoCodes;
+    }
+};
+
+
+
+
 const PromoApi = {
     addPromo,
     getPromo,
     updatePromo,
     activatePromo,
     deActivatePromo,
-    deletePromo, getPromoById
+    deletePromo, getPromoById,
+    getAllPromoCodes
 };
 
 export default PromoApi;

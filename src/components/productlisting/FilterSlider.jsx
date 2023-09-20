@@ -9,32 +9,7 @@ const FilterSidebar = ({ updateValue }) => {
 
     const [userCountry, setUserCountry] = useState(null);
 
-    useEffect(() => {
-        try {
-            if ('geolocation' in navigator) {
-                try {
-                    navigator.geolocation.getCurrentPosition(async (position) => {
-                        const { coords } = position;
-                        const response = await fetch(
-                            `https://geocode.xyz/${coords.latitude},${coords.longitude}?json=1`
-                        );
-                        const data = await response.json();
-                        console.log("DATA", data)
 
-                        setUserCountry(data.country);
-                    });
-                } catch (error) {
-                    console.log("LOCATION ERROR", error)
-                    setUserCountry('');
-
-                }
-            } else {
-                setUserCountry('Geolocation is not available in your browser.');
-            }
-        } catch (error) {
-            console.log(error)
-        }
-    }, []);
     const [searchTerm, setSearchTerm] = useState("");
     const [formData, setFormData] = useState({
         category: '',
@@ -115,19 +90,7 @@ const FilterSidebar = ({ updateValue }) => {
                         </p>
                     </label> */}
                     <div className="space-y-2">
-                        <label className="flex items-center space-x-2">
-                            <input type="checkbox" onChange={(e) => {
-                                handleChange(e);
-                                if (e.target.checked) {
-                                    // Set formData.category to 'abduction' when checked
-                                    setFormData({ ...formData, country: userCountry });
-                                }
-                            }} checked={formData.country === userCountry}
-                                value={userCountry} className="form-checkbox" />
-                            {/* <Image src={country.img} width={21} height={14} alt="" /> */}
-                            <h1>Current:</h1>
-                            <span>{userCountry}</span>
-                        </label>
+
                         {filteredCountries.map((country) => (
                             <label key={country.id} className="flex items-center space-x-2">
                                 <input type="checkbox" onChange={(e) => {

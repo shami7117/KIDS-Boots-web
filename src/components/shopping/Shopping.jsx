@@ -11,7 +11,6 @@ import {
     addDoc, doc, getDoc, setDoc, getDocs
 } from "firebase/firestore";
 import 'react-notifications/lib/notifications.css';
-import { NotificationContainer, NotificationManager } from 'react-notifications';
 import { auth, db } from "../../../Firebase/firebase.js";
 import { getAuth } from "firebase/auth";
 import ProductApi from '@/lib/product';
@@ -23,8 +22,10 @@ import { ThreeDots } from 'react-loader-spinner'
 import { AiOutlineHeart } from 'react-icons/ai'
 
 
+import { notification } from 'antd';
 
 
+let times = 1;
 
 
 const Shopping = ({ cart }) => {
@@ -80,12 +81,20 @@ const Shopping = ({ cart }) => {
 
                 queryClient.invalidateQueries(["FavoriteAdded"]);
                 if (data?.code === 1) {
-                    NotificationManager.success("Added in Favorite successfully!");
+                    notification.open({
+                        type: "success",
+                        message: 'Added in Favorite successfully!',
+                        placement: "top",
+                    });
                     // router.push("/shopping");
 
                 } else {
-                    NotificationManager.info("Product is already available in Favorite");
                     // router.push("/shopping");
+                    notification.open({
+                        type: "info",
+                        message: 'Product is already available in Favorite',
+                        placement: "top",
+                    });
 
                 }
 
@@ -146,7 +155,11 @@ const Shopping = ({ cart }) => {
             onSuccess: () => {
                 queryClient.invalidateQueries(["CartAdded"]);
 
-                NotificationManager.success("Product deleted from cart successfully!");
+                notification.open({
+                    type: "success",
+                    message: 'Product deleted from cart successfully!',
+                    placement: "top",
+                });
 
 
             },
@@ -160,13 +173,13 @@ const Shopping = ({ cart }) => {
         const auth = getAuth();
         const user = auth.currentUser;
         userId = user.uid
-        console.log("USER ID ", userId);
 
 
     } catch (error) {
         console.log("USER ID ERROR", error);
     }
 
+    console.log("USER ID ", userId);
 
 
 
@@ -174,7 +187,7 @@ const Shopping = ({ cart }) => {
         ['CartAdded'],
         async () => {
 
-            const response = await CartApi.getCarts();
+            const response = await CartApi.getCartsByIds(userId);
             return response;// Assuming your API returns data property
 
         }
@@ -194,34 +207,39 @@ const Shopping = ({ cart }) => {
             setErrors({});
 
             // check so that coupon could use only once
-            if (discountPrice === 0) {
-                const ref = collection(db, "PromoCode");
-                const res = await getDocs(ref);
-                let docs = [];
+            const ref = collection(db, "PromoCode");
+            const res = await getDocs(ref);
+            let docs = [];
 
-                if (res.docs.length <= 0) {
-                    return [];
-                } else {
-                    res.forEach((doc) => {
-                        const data = doc.data();
-                        if (data.promo === promoCode) {
-                            docs.push({ ...data, id: doc.id });
-                        }
+            if (res.docs.length <= 0) {
+                return [];
+            } else {
+                res.forEach((doc) => {
+                    const data = doc.data();
+                    if (data.promo === promoCode) {
+                        docs.push({ ...data, id: doc.id });
+                    }
+                });
+
+                if (docs.length === 0) {
+
+                    notification.open({
+                        type: "error",
+                        message: 'This coupon is not valid',
+                        placement: "top",
                     });
-
-                    if (docs.length === 0) {
-                        NotificationManager.error("This coupon is not valid");
-                    } else {
+                } else {
 
 
-                        let PromoProductId = [];
+                    let PromoProductId = [];
 
-                        // products which are enable of coupon
-                        const product = docs[0]?.products;
+                    // products which are enable of coupon
+                    const product = docs[0]?.products;
 
-                        // times to find percentage of discount buyer will get
-                        const times = docs[0]?.time;
-
+                    // times to find percentage of discount buyer will get
+                    const percent = docs[0]?.percent;
+                    const time = docs[0]?.time;
+                    if (times <= time) {
                         product.map((item) => {
                             var parts = item.split(',');
                             PromoProductId.push(parts[1]);
@@ -231,30 +249,43 @@ const Shopping = ({ cart }) => {
                         console.log(" PROMO ID ", PromoProductId);
 
 
-                        NotificationManager.success("Your coupon is valid!");
 
+
+                        times++;
                         // checking which products are in cart from promoCode
-                        const filteredDataFromCart = data.filter(item => PromoProductId.some(part => part === item.id));
+                        console.log("PROMO PRODUCTS", PromoProductId)
+                        console.log("PROMO data", data)
+                        const filteredDataFromCart = data.filter(item => PromoProductId.some(part => part === item.productId));
 
                         filteredDataFromCart.map((singleProduct) => {
                             console.log(" PRICE ", singleProduct?.price);
 
-                            const DiscountPercent = times * 10;
-                            setDiscountPrice(discountPrice + (DiscountPercent / 100) * singleProduct?.price);
+                            setDiscountPrice(discountPrice + (percent / 100) * singleProduct?.price);
                             console.log("DISCOUNT", discountPrice)
 
                         })
 
                         console.log(" FILTERS ", filteredDataFromCart);
-
+                        notification.open({
+                            type: "success",
+                            message: 'Your coupon is valid!',
+                            placement: "top",
+                        });
+                        console.log(" TIMES ", times, "COUPON TIME", time);
 
                     }
+                    else {
+                        notification.open({
+                            type: "error",
+                            message: 'Coupon limit has been ended',
+                            placement: "top",
+                        });
+                    }
+
                 }
             }
-            else {
-                NotificationManager.error("Coupon has been used ");
 
-            }
+
 
         } catch (error) {
             if (error instanceof Yup.ValidationError) {
@@ -301,7 +332,6 @@ const Shopping = ({ cart }) => {
     return (
         <div>
             <div className='flex flex-col md:flex-row gap-10'>
-                <NotificationContainer />
 
                 <div className='flex flex-col md:basis-[80%] rounded-md border px-5 py-7'>
                     <div className='flex justify-between md:justify-normal '>
@@ -315,7 +345,7 @@ const Shopping = ({ cart }) => {
 
                     </div>
 
-                    {data?.map((item) => {
+                    {data.length > 0 ? data?.map((item) => {
 
 
                         return <div key={item.id}>
@@ -326,7 +356,7 @@ const Shopping = ({ cart }) => {
                                     </div>
                                     <div>
                                         <p className='md:max-w-[280px] text-[14px] md:text-[16px] text-[#1A9CDA] font-[500] pr-4'>
-                                            <span className='uppercase'>{item.category}</span> ({item.type})({item.color})
+                                            <span className='uppercase'>{item?.product} ,{item.category}</span> ({item.type})({item.color})
                                         </p>
                                         <p className='text-[12px] md:text-[16px]'>
                                             {item.side} : {item.size}
@@ -398,7 +428,8 @@ const Shopping = ({ cart }) => {
                                 </button>
                             </div>
                         </div>
-                    })}
+                    }) : <h1 className='mt-6'>No products Available in Cart</h1>
+                    }
 
 
 

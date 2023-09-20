@@ -4,14 +4,17 @@ import { HiOutlineLocationMarker } from 'react-icons/hi'
 import { BsArrowDown } from 'react-icons/bs'
 import { MdKeyboardArrowDown } from 'react-icons/md'
 import Link from 'next/link'
+import { useRouter } from 'next/router';
 const BottomHeader = () => {
+    const router = useRouter();
     const [showDropdown, setShowDropdown] = useState(false);
+    const [Location, setLocation] = useState(false);
 
     const [userCountry, setUserCountry] = useState(null);
     const [userRegion, setUserRegion] = useState(null);
     const [userAddress, setUserAddress] = useState(null);
 
-    useEffect(() => {
+    const locationEnable = () => {
         try {
             if ('geolocation' in navigator) {
                 try {
@@ -24,14 +27,10 @@ const BottomHeader = () => {
                         console.log("DATA", data)
 
                         setUserCountry(data.country);
-                        setUserRegion(data.region);
-                        setUserAddress(data.staddress);
                     });
                 } catch (error) {
                     console.log("LOCATION ERROR", error)
                     setUserCountry('');
-                    setUserRegion('');
-                    setUserAddress('');
 
                 }
             } else {
@@ -40,7 +39,7 @@ const BottomHeader = () => {
         } catch (error) {
             console.log(error)
         }
-    },);
+    };
 
     console.log("COUNTRY", userCountry)
 
@@ -51,6 +50,8 @@ const BottomHeader = () => {
     const handleCategoryLeave = () => {
         setShowDropdown(false);
     };
+
+
     return (
         <div className='bg-primary-purple-color text-white h-[54px] md:flex hidden'>
             <Wrapper>
@@ -68,8 +69,14 @@ const BottomHeader = () => {
                                 {showDropdown && (
                                     <div className='flex gap-3 z-10 flex-col absolute bg-white text-black py-4 px-4 rounded-md shadow-md '
                                     >
-                                        <Link href='/product-listing'>Buy AFO System</Link>
-                                        <Link href='/product-listing'>Buy Abduction Bar</Link>
+                                        <Link href={{
+                                            pathname: '/product-listing',
+                                            query: { category: 'afo' },
+                                        }}>Buy AFO System</Link>
+                                        <Link href={{
+                                            pathname: '/product-listing',
+                                            query: { category: 'abduction' },
+                                        }}>Buy Abduction Bar</Link>
 
                                     </div>
                                 )}
@@ -81,11 +88,16 @@ const BottomHeader = () => {
 
                         </ul>
                     </div>
-                    <div className='hidden gap-1 whitespace-nowrap justify-center items-center cursor-pointer xl:flex'>
+                    <div
+                        // href={{
+                        //     pathname: '#',
+                        //     query: { country: userCountry },
+                        // }}
+                        onClick={() => { locationEnable(); setLocation(true); }} className='hidden gap-1 whitespace-nowrap justify-center items-center cursor-pointer xl:flex'>
 
                         <HiOutlineLocationMarker size={21} />
                         <p>
-                            {userCountry}
+                            {Location ? userCountry : <span>Enable Location</span>}
                         </p>
                         {/* <MdKeyboardArrowDown size={21} /> */}
                     </div>

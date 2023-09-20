@@ -50,9 +50,9 @@ const ProductUpload = () => {
     });
 
     const validationSchema = Yup.object().shape({
-        brand: Yup.string()
-            .required('Brand Name is required')
-            .test('not-a-number', 'Brand name cannot be a number', value => {
+        productName: Yup.string()
+            .required('Product Name is required')
+            .test('not-a-number', 'Product name cannot be a number', value => {
                 if (!value) return true; // Allow empty values (already handled by 'required')
                 return isNaN(Number(value));
             }),
@@ -102,9 +102,9 @@ const ProductUpload = () => {
 
     });
     const abductionValidationSchema = Yup.object().shape({
-        brand: Yup.string()
-            .required('Brand Name is required')
-            .test('not-a-number', 'Brand name cannot be a number', value => {
+        productName: Yup.string()
+            .required('Product Name is required')
+            .test('not-a-number', 'Product name cannot be a number', value => {
                 if (!value) return true; // Allow empty values (already handled by 'required')
                 return isNaN(Number(value));
             }),
@@ -237,7 +237,7 @@ const ProductUpload = () => {
                         sellerId: sellerID,
                         category: formData.category,
                         size: formData.size,
-                        brand: formData.brand,
+                        product: formData.productName,
                         color: formData.color,
                         price: formData.price,
                         type: formData.type,
@@ -257,7 +257,7 @@ const ProductUpload = () => {
                     setFormData({
                         category: 'afo',
                         size: '',
-                        brand: '',
+                        productName: '',
                         color: '',
                         price: '',
                         type: '',
@@ -407,16 +407,16 @@ const ProductUpload = () => {
                 <div className="xl:-mt-3 xl:flex xl:justify-between">
                     <div>
                         <label className="block mb-6">
-                            <span className="text-[16px] font-[500] text-[#000000]">Brand*</span>
+                            <span className="text-[16px] font-[500] text-[#000000]">Product*</span>
                             <input
                                 type="text"
-                                name="brand"
+                                name="productName"
                                 onChange={(e) => { handleChange(e); }}
-                                value={formData.brand}
+                                value={formData.product}
                                 className="block xl:w-96 w-72 mt-1 mb-6 xl:mb-0 rounded-md p-2 bg-[#B4C7ED0D] border-[#2668E826]  border-2"
-                                placeholder="Brand name"
+                                placeholder="Product name"
                             />
-                            {errors.brand && <div className="  px-1 justify-start text-[red] flex items-center  whitespace-nowrap rounded-lg  text-[black] mb-1 mt-1  mt-0">{errors.brand}</div>}
+                            {errors.productName && <div className="  px-1 justify-start text-[red] flex items-center  whitespace-nowrap rounded-lg  text-[black] mb-1 mt-1  mt-0">{errors.productName}</div>}
                         </label>
 
                     </div>
