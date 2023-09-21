@@ -24,7 +24,6 @@ import { Dropdown, Space, Divider, Button, theme } from 'antd';
 const { useToken } = theme;
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import PromoCodeApi from "@/lib/promo";
-import axios from 'axios';
 import {
     addDoc,
     collection,
@@ -43,26 +42,11 @@ import { useSearch } from './searchContext';
 
 
 
-async function getUserCountry() {
-    try {
-        const response = await axios.get('https://ipinfo.io');
-        const { country } = response.data;
 
-        console.log(`User's country: ${country}`);
-        return country;
-    } catch (error) {
-        console.error('Error fetching user location:', error);
-        return null;
-    }
-}
-
-// Call the function to get the user's country
-// const userCountry = ;
 
 const Navbar = () => {
     const router = useRouter();
 
-    // const [searchText, setSearchText] = useState('');
     const [searchResults, setSearchResults] = useState([]);
 
 
@@ -94,20 +78,7 @@ const Navbar = () => {
     };
 
 
-    // const handleSearch = async () => {
-    //     // router.push('/product-listing')
 
-    //     const url = `/product-listing?searchText=${encodeURIComponent(searchText)}`;
-
-    //     // Use router.push with the constructed URL
-    //     router.push(url);
-    //   
-
-    //    
-
-    //     // Send searchText as a parameter to the /product-listing route
-
-    // }
 
     useEffect(() => {
 
@@ -262,7 +233,7 @@ const Navbar = () => {
                                 </div>
                                 <div className="flex text-[black] gap-6 cursor-pointer ">
                                     {isLoggedIn && <div className='p-2 rounded-full border border-[#0076AE1F] hover:bg-[#0076AE1F]'>
-                                        <BsBell onClick={async () => { await getUserCountry() }} size={21} />
+                                        <BsBell size={21} />
                                         <p className="bg-primary-pink-color h-[10px] w-[10px] border border-white rounded-full flex items-center justify-center text-white text-[9px] absolute mt-[-1.3rem] ml-[0.5rem]">
 
                                         </p>

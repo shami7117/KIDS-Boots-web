@@ -352,9 +352,9 @@ const ProductListing = () => {
     Filter.category = afoQueryParam;
   }
 
-  // if (country !== undefined && country !== null) {
-  //   Filter.country = country
-  // }
+  if (country !== undefined && country !== null) {
+    Filter.country = country
+  }
 
   const { data: BootsData, isLoading: BootsLoading, isError } = useQuery(
     ['Products', Filter, currentPage],

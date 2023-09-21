@@ -5,6 +5,13 @@ import { BsArrowDown } from 'react-icons/bs'
 import { MdKeyboardArrowDown } from 'react-icons/md'
 import Link from 'next/link'
 import { useRouter } from 'next/router';
+import axios from 'axios';
+
+
+
+
+
+
 const BottomHeader = () => {
     const router = useRouter();
     const [showDropdown, setShowDropdown] = useState(false);
@@ -14,35 +21,67 @@ const BottomHeader = () => {
     const [userRegion, setUserRegion] = useState(null);
     const [userAddress, setUserAddress] = useState(null);
 
-    const locationEnable = () => {
+
+    const apiKey = '67273a00-5c4b-11ed-9204-d161c2da74ce'; // Replace with your actual API key
+    const apiUrl = `https://geolocation-db.com/json/${apiKey}`;
+
+    const getUserCountry = async () => {
         try {
-            if ('geolocation' in navigator) {
-                try {
-                    navigator.geolocation.getCurrentPosition(async (position) => {
-                        const { coords } = position;
-                        const response = await fetch(
-                            `https://geocode.xyz/${coords.latitude},${coords.longitude}?json=1`
-                        );
-                        const data = await response.json();
-                        console.log("DATA", data)
+            const response = await axios.get(apiUrl); // Use your geolocation API here
+            const { country_name } = response.data;
 
-                        setUserCountry(data.country);
-                    });
-                } catch (error) {
-                    console.log("LOCATION ERROR", error)
-                    setUserCountry('');
-
-                }
-            } else {
-                setUserCountry('Geolocation is not available in your browser.');
-            }
+            setUserCountry(country_name);
+            console.log(`User's country: ${country_name}`);
+            return country_name;
         } catch (error) {
-            console.log(error)
+            console.error('Error fetching user location:', error);
+            return null;
         }
     };
 
-    console.log("COUNTRY", userCountry)
+    console.log("User's country:", userCountry);
 
+
+    // const locationEnable = () => {
+    //     try {
+    //         if ('geolocation' in navigator) {
+    //             try {
+    //                 navigator.geolocation.getCurrentPosition(async (position) => {
+    //                     const { coords } = position;
+    //                     const response = await fetch(
+    //                         `https://geocode.xyz/${coords.latitude},${coords.longitude}?json=1`
+    //                     );
+    //                     const data = await response.json();
+    //                     console.log("DATA", data)
+
+    //                     setUserCountry(data.country);
+    //                 });
+    //             } catch (error) {
+    //                 console.log("LOCATION ERROR", error)
+    //                 setUserCountry('');
+
+    //             }
+    //         } else {
+    //             setUserCountry('Geolocation is not available in your browser.');
+    //         }
+    //     } catch (error) {
+    //         console.log(error)
+    //     }
+    // };
+
+    console.log("COUNTRY", userCountry)
+    const handleLocationClick = async () => {
+        const country = await getUserCountry();
+
+        if (country) {
+            router.push({
+                pathname: '/product-listing',
+                query: { country }
+            });
+        } else {
+            // Handle the case where userCountry is null or empty
+        }
+    };
     const handleCategoryHover = () => {
         setShowDropdown(true);
     };
@@ -88,16 +127,13 @@ const BottomHeader = () => {
 
                         </ul>
                     </div>
-                    <div
-                        // href={{
-                        //     pathname: '#',
-                        //     query: { country: userCountry },
-                        // }}
-                        onClick={() => { locationEnable(); setLocation(true); }} className='hidden gap-1 whitespace-nowrap justify-center items-center cursor-pointer xl:flex'>
+                    <div onClick={handleLocationClick}
+
+                        className='hidden gap-1 whitespace-nowrap justify-center items-center cursor-pointer xl:flex'>
 
                         <HiOutlineLocationMarker size={21} />
                         <p>
-                            {Location ? userCountry : <span>Enable Location</span>}
+                            {userCountry !== null ? userCountry : <span>Enable Location</span>}
                         </p>
                         {/* <MdKeyboardArrowDown size={21} /> */}
                     </div>
