@@ -184,7 +184,7 @@ const Shopping = ({ cart }) => {
 
 
     const { data, isLoading, isError } = useQuery(
-        ['CartAdded'],
+        ['CartAdded', userId],
         async () => {
 
             const response = await CartApi.getCartsByIds(userId);

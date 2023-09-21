@@ -33,7 +33,7 @@ const ListingModal = ({ isOpen, onClose }) => {
             className={`fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex justify-center items-center ${isOpen ? '' : 'hidden'
                 }`}
         >
-            <div ref={modalRef} className="bg-white w-[340px] md:w-[500px] md:h-[440px] py-10 px-8 justify-center items-center rounded-md shadow-md">
+            <div ref={modalRef} className="bg-white w-[340px] md:w-[500px]   py-10 px-8 justify-center items-center rounded-md shadow-md">
                 <div className="flex flex-col  mb-3 w-full">
                     <div>
                         <label className="block mb-6">
@@ -101,8 +101,19 @@ const ListingModal = ({ isOpen, onClose }) => {
                     </div>
                     {selectedCategory === 'abduction' && (
                         <div>
+                            <span className="text-[16px] font-[500] text-[#000000]">Price Range</span>
+
                             <label className="block mb-6">
-                                <span className="text-[16px] font-[500] text-[#000000]">Price*</span>
+                                <span className="text-[16px] font-[500] text-[#000000]"> From*</span>
+                                <input
+                                    type="number"
+                                    name="name"
+                                    className="block w-full mt-1 mb-6 xl:mb-0 rounded-md p-2 bg-[#B4C7ED0D] border-[#2668E826]  border-2"
+                                    placeholder="$878"
+                                />
+                            </label>
+                            <label className="block mb-6">
+                                <span className="text-[16px] font-[500] text-[#000000]">To*</span>
                                 <input
                                     type="number"
                                     name="name"
@@ -114,11 +125,11 @@ const ListingModal = ({ isOpen, onClose }) => {
                     )}
                 </div>
                 <button
-                            className="mt-4 w-full bg-primary-pink-color text-white py-2 px-4 rounded"
-                            onClick={onClose}
-                        >
-                            Submit
-                        </button>
+                    className="mt-4 w-full bg-primary-pink-color text-white py-2 px-4 rounded"
+                    onClick={onClose}
+                >
+                    Submit
+                </button>
             </div>
         </div>
     );

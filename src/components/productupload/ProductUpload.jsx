@@ -8,7 +8,7 @@ import { storage } from '../../../Firebase/firebase.js';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { auth, db } from "../../../Firebase/firebase.js";
 import { Button, Modal, Space } from 'antd';
-
+import { ThreeDots } from 'react-loader-spinner'
 import {
     notification
 } from "antd";
@@ -17,7 +17,8 @@ import {
     addDoc, doc, getDoc, setDoc,
 } from "firebase/firestore";
 const Storage = getStorage(storage);
-
+import SellerApi from '@/lib/sellers.js';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 
 
@@ -31,9 +32,25 @@ const ProductUpload = () => {
         setSelectedSize(''); // Reset the selected size when category changes
     };
 
+    let userId
+    try {
+        const user = auth.currentUser;
+        userId = user.uid;
+
+    } catch (error) {
+        console.log(error)
+    }
     const [errors, setErrors] = useState({});
     const [loading, setLoading] = useState(false);
+    const { data: SellerData, isLoading: SellerLoading, isError } = useQuery(
+        ['Sellers', userId],
+        async () => {
 
+            const response = await SellerApi.getUserByUserId(userId);
+            return response;// Assuming your API returns data property
+
+        }
+    );
 
     const [formData, setFormData] = useState({
         category: 'afo',
@@ -249,6 +266,7 @@ const ProductUpload = () => {
                         status: "Pending",
                         featured: false,
                         popular: false,
+                        country: SellerData?.country,
                     };
                     await setDoc(docRef, values, { merge: true });
 
@@ -334,6 +352,20 @@ const ProductUpload = () => {
         }
     }
 
+
+    if (SellerLoading) {
+        return <div className="flex h-[100vh] justify-center items-center"> <ThreeDots
+            height="100"
+            width="100"
+            radius="9"
+            color="#A51F6C"
+            ariaLabel="three-dots-loading"
+            wrapperStyle={{}}
+            wrapperClassName=""
+            visible={true}
+        />
+        </div>
+    }
 
     return (
         <div className="py-10 md:w-[900px] md:mx-auto md:px-10 px-5 flex flex-col justify-center mt-6 xl:mt-0 bg-white shadow-md ">

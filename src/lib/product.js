@@ -50,6 +50,7 @@ const addProduct = async (data) => {
 const getCategoryWiseProducts = async (filters, page) => {
   const ref = collection(db, "Products");
   console.log("FILTERS", filters);
+  console.log("PAGE NUMBER", page)
 
   let res;
   const pageSize = 12; // Number of products per page

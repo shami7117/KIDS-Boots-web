@@ -13,10 +13,8 @@ import ProductDetails from "@/components/productdetails/ProductDetails";
 import Like from "@/components/productdetails/Like";
 import { useRouter } from "next/router";
 import { getAuth } from "firebase/auth";
-import { NotificationContainer, NotificationManager } from 'react-notifications';
-import 'react-notifications/lib/notifications.css';
 import { ThreeDots } from 'react-loader-spinner'
-
+import { notification } from "antd";
 
 
 
@@ -51,11 +49,19 @@ const ProductPage = () => {
 
         queryClient.invalidateQueries(["CartAdded"]);
         if (data?.code === 1) {
-          NotificationManager.success("Added in cart successfully!");
+          notification.open({
+            type: "success",
+            message: "Added in cart successfully!",
+            placement: "top",
+          });
           router.push("/shopping");
 
         } else {
-          NotificationManager.info("Product is already available in cart");
+          notification.open({
+            type: "success",
+            message: "Added in cart successfully!",
+            placement: "top",
+          });
           router.push("/shopping");
 
         }
@@ -160,7 +166,6 @@ const ProductPage = () => {
 
   return (
     <div>
-      <NotificationContainer />
 
       <Wrapper>
         <div className="mt-5 ">

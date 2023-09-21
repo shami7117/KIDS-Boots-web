@@ -18,31 +18,112 @@ import BottomHeader from './BottomHeader'
 import { HiOutlineLocationMarker } from 'react-icons/hi'
 import { UserOutlined } from '@ant-design/icons';
 import { Avatar } from 'antd';
-import { auth } from "../../../Firebase/firebase.js"
+import { auth, db } from "../../../Firebase/firebase.js"
 import { DownOutlined } from '@ant-design/icons';
 import { Dropdown, Space, Divider, Button, theme } from 'antd';
 const { useToken } = theme;
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import PromoCodeApi from "@/lib/promo";
+import axios from 'axios';
+import {
+    addDoc,
+    collection,
+    deleteDoc,
+    doc,
+    getDoc,
+    getDocs,
+    query,
+    setDoc,
+    where,
+    Timestamp
+} from "firebase/firestore";
+import { useRouter } from 'next/router'
+import { useSearch } from './searchContext';
 
 
 
+
+async function getUserCountry() {
+    try {
+        const response = await axios.get('https://ipinfo.io');
+        const { country } = response.data;
+
+        console.log(`User's country: ${country}`);
+        return country;
+    } catch (error) {
+        console.error('Error fetching user location:', error);
+        return null;
+    }
+}
+
+// Call the function to get the user's country
+// const userCountry = ;
 
 const Navbar = () => {
+    const router = useRouter();
 
+    // const [searchText, setSearchText] = useState('');
+    const [searchResults, setSearchResults] = useState([]);
+
+
+    const { state, dispatch } = useSearch();
+
+    const handleInputChange = async (e) => {
+        router.push('/product-listing');
+        const searchText = e.target.value;
+
+        const snapshot = collection(db, 'Products');
+        const searchTextLower = searchText.toLowerCase(); // Convert searchText to lowercase
+        const querySnapshot = await getDocs(
+            query(
+                snapshot,
+                where('product', '>=', searchTextLower), // Compare lowercase product names
+                where('product', '<=', searchTextLower + '\uf8ff') // Compare lowercase product names
+            )
+        );
+
+        const results = [];
+        querySnapshot.forEach((doc) => {
+            results.push(doc.data());
+        });
+
+        setSearchResults(results);
+
+        dispatch({ type: 'SET_SEARCH_TEXT', payload: searchText });
+        dispatch({ type: 'SET_SEARCH_RESULTS', payload: results }); // Dispatch search results as well
+    };
+
+
+    // const handleSearch = async () => {
+    //     // router.push('/product-listing')
+
+    //     const url = `/product-listing?searchText=${encodeURIComponent(searchText)}`;
+
+    //     // Use router.push with the constructed URL
+    //     router.push(url);
+    //   
+
+    //    
+
+    //     // Send searchText as a parameter to the /product-listing route
+
+    // }
 
     useEffect(() => {
-        const user = auth.currentUser;
-        const userId = user?.uid
-        if (userId !== undefined) {
-            setIsLoggedIn(true)
-        }
-        else {
-            setIsLoggedIn(false)
-        }
-        console.log("USER", userId);
 
-    })
+        const unsubscribe = auth.onAuthStateChanged(user => {
+            if (user) {
+                setIsLoggedIn(true);
+            } else {
+                setIsLoggedIn(false);
+            }
+        });
+
+        return () => {
+            // Unsubscribe from the listener when the component unmounts
+            unsubscribe();
+        };
+    }, []);
 
 
 
@@ -144,6 +225,8 @@ const Navbar = () => {
                                 <div className='flex gap-6 items-center'>
                                     <div className="relative">
                                         <input
+                                            value={state.searchText}
+                                            onChange={handleInputChange}
                                             type="text"
                                             className="h-[50px] focus:outline-none  w-[200px] md:w-[440px] bg-[#F4F6F8]  px-5 py-2 rounded-[5px]"
                                             placeholder="Search Product here.."
@@ -179,7 +262,7 @@ const Navbar = () => {
                                 </div>
                                 <div className="flex text-[black] gap-6 cursor-pointer ">
                                     {isLoggedIn && <div className='p-2 rounded-full border border-[#0076AE1F] hover:bg-[#0076AE1F]'>
-                                        <BsBell size={21} />
+                                        <BsBell onClick={async () => { await getUserCountry() }} size={21} />
                                         <p className="bg-primary-pink-color h-[10px] w-[10px] border border-white rounded-full flex items-center justify-center text-white text-[9px] absolute mt-[-1.3rem] ml-[0.5rem]">
 
                                         </p>
@@ -313,7 +396,7 @@ const Navbar = () => {
                                         </div>
                                         <div className="mt-[7rem] flex text-[black] gap-6 cursor-pointer  ">
                                             {isLoggedIn && <div className='p-2 rounded-full border border-[#0076AE1F] hover:bg-[#0076AE1F]'>
-                                                <BsBell size={21} />
+                                                <BsBell onClick={async () => { await getUserCountry() }} size={21} />
                                                 <p className="bg-primary-pink-color h-[10px] w-[10px] border border-white rounded-full flex items-center justify-center text-white text-[9px] absolute mt-[-1.3rem] ml-[0.5rem]">
 
                                                 </p>
