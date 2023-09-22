@@ -19,6 +19,7 @@ import 'react-notifications/lib/notifications.css';
 import { ThreeDots } from 'react-loader-spinner'
 import { useRouter } from 'next/router'
 import { notification } from 'antd'
+import { Button, Modal, Space } from 'antd';
 
 import { useSearch } from '../navbar/searchContext.js';
 
@@ -331,7 +332,15 @@ const ProductListing = () => {
     }
   };
 
+  const success = () => {
+    Modal.success({
+      content: 'Submitted we will contact you as soon as we get your requirements',
 
+      onOk() {
+        router.push('/product-listing')
+      },
+    });
+  };
   const updateValue = (newValue) => {
 
     setFilter(newValue);
@@ -344,8 +353,6 @@ const ProductListing = () => {
   // Access the query parameter named "afo"
   const afoQueryParam = router?.query?.category;
   const country = router?.query?.country;
-  console.log("CATEGORY", afoQueryParam)
-
 
   if (afoQueryParam !== undefined && Filter?.category !== null) {
 
@@ -355,6 +362,7 @@ const ProductListing = () => {
   if (country !== undefined && country !== null) {
     Filter.country = country
   }
+
 
   const { data: BootsData, isLoading: BootsLoading, isError } = useQuery(
     ['Products', Filter, currentPage],
@@ -569,7 +577,7 @@ const ProductListing = () => {
           }
 
 
-          <ListingModal isOpen={isModalOpen} onClose={handleModalClose} />
+          <ListingModal triggerFunction={success} isOpen={isModalOpen} onClose={handleModalClose} />
           {/* Pagination */}
 
           <div className="flex mx-auto justify-center items-center mt-[3rem] space-x-2 mb-[4rem]">

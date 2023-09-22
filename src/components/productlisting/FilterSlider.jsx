@@ -1,5 +1,6 @@
 "use client";
 import Image from "next/image";
+import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { AiOutlineSearch } from "react-icons/ai";
 
@@ -207,11 +208,18 @@ const FilterSidebar = ({ updateValue }) => {
         'Zambia',
         'Zimbabwe'
     ];
-
+    const router = useRouter();
     const [searchText, setSearchText] = useState('');
     const [filteredCountries, setFilteredCountries] = useState(countries);
 
+
     const handleSelectChange = (e) => {
+        console.log("COUNTRY selected", e.target.value)
+        if (router.query.country !== undefined) {
+            delete router.query.country;
+
+            router.push("/product-listing");
+        }
         setSearchText(e.target.value);
         const filtered = countries.filter((country) =>
             country.toLowerCase().includes(e.target.value.toLowerCase())
@@ -222,7 +230,6 @@ const FilterSidebar = ({ updateValue }) => {
         });
         setFilteredCountries(filtered);
     };
-
     const [userCountry, setUserCountry] = useState(null);
 
 
@@ -235,6 +242,8 @@ const FilterSidebar = ({ updateValue }) => {
         color: '',
 
     });
+    console.log("COUNTRY OF FORM", formData.country)
+
     console.log("DATA", formData)
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -330,7 +339,6 @@ const FilterSidebar = ({ updateValue }) => {
             mt-1
              py-2 px-3  bg-[#B4C7ED0D] border-[#2668E826] border-2
             rounded-md"
-                            style={{ width: '200px' }}
                             value={searchText}
                             onChange={handleSelectChange}
                         >
