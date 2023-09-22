@@ -45,15 +45,7 @@ const Shopping = ({ cart }) => {
 
 
 
-    // const { data: promoData, isLoading: promoLoading, isError: promoError } = useQuery(
-    //     ['Promo'], async () => {
 
-    //         const response = await PromoApi.getPromo(promoCode);
-    //         return response;// Assuming your API returns data property
-
-    //     }
-    // );
-    // console.log("Promo", promoData)
 
     console.log("QUANTITY", cartItems)
 
@@ -86,10 +78,8 @@ const Shopping = ({ cart }) => {
                         message: 'Added in Favorite successfully!',
                         placement: "top",
                     });
-                    // router.push("/shopping");
 
                 } else {
-                    // router.push("/shopping");
                     notification.open({
                         type: "info",
                         message: 'Product is already available in Favorite',
@@ -234,10 +224,13 @@ const Shopping = ({ cart }) => {
                     let PromoProductId = [];
 
                     // products which are enable of coupon
+                    console.log("PROMO PRODUCTS", docs.map((item) => { item }))
                     const product = docs[0]?.products;
 
-                    // times to find percentage of discount buyer will get
+                    //  find percentage of discount buyer will get
                     const percent = docs[0]?.percent;
+                    console.log("PROMO PERCENTAGE", percent)
+
                     const time = docs[0]?.time;
                     if (times <= time) {
                         product.map((item) => {
@@ -256,14 +249,17 @@ const Shopping = ({ cart }) => {
                         console.log("PROMO PRODUCTS", PromoProductId)
                         console.log("PROMO data", data)
                         const filteredDataFromCart = data.filter(item => PromoProductId.some(part => part === item.productId));
-
+                        let allPrices = 0;
                         filteredDataFromCart.map((singleProduct) => {
                             console.log(" PRICE ", singleProduct?.price);
-
-                            setDiscountPrice(discountPrice + (percent / 100) * singleProduct?.price);
+                            allPrices = allPrices + parseFloat(singleProduct?.price);
                             console.log("DISCOUNT", discountPrice)
 
                         })
+                        // const num = parseFloat(allPrices); // num will be 3.14
+
+                        // console.log(" ALL PRICES ", allPrices);
+                        setDiscountPrice(discountPrice + (percent / 100) * allPrices);
 
                         console.log(" FILTERS ", filteredDataFromCart);
                         notification.open({
