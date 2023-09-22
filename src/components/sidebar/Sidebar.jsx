@@ -21,11 +21,11 @@ import { useRouter } from "next/router.js";
 import SellerApi from '@/lib/sellers';
 import UserApi from '@/lib/buyer';
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { ThreeDots } from 'react-loader-spinner'
 
 
 
 const Sidebar = () => {
-    const [activeItem, setActiveItem] = useState("window1");
 
     const handleItemClick = (index) => {
         setActiveItem(index === activeItem ? null : index);
@@ -44,7 +44,7 @@ const Sidebar = () => {
 
 
     const { data: SellerData, isLoading, isError } = useQuery(
-        ['Sellers'],
+        ['Sellers', userId],
         async () => {
 
             const response = await SellerApi.getUserByUserId(userId);
@@ -52,8 +52,10 @@ const Sidebar = () => {
 
         }
     );
+    const [activeItem, setActiveItem] = useState(SellerData !== null ? "window1" : "window4");
+
     const { data: buyerData, isLoading: buyerLoading, isError: buyerError } = useQuery(
-        ['Buyers'],
+        ['Buyers', userId],
         async () => {
 
             const response = await UserApi.getUserByUserId(userId);
@@ -63,6 +65,31 @@ const Sidebar = () => {
     );
     console.log("SELLER", SellerData)
     console.log("BUYER", buyerData)
+    if (isLoading) {
+        return <div className="flex justify-center items-center"> <ThreeDots
+            height="150"
+            width="150"
+            radius="9"
+            color="#A51F6C" ariaLabel="three-dots-loading"
+            wrapperStyle={{}}
+            wrapperClassName=""
+            visible={true}
+        />
+        </div>
+    }
+    if (buyerLoading) {
+        return <div className="flex justify-center items-center"> <ThreeDots
+            height="150"
+            width="150"
+            radius="9"
+            color="#A51F6C"
+            ariaLabel="three-dots-loading"
+            wrapperStyle={{}}
+            wrapperClassName=""
+            visible={true}
+        />
+        </div>
+    }
 
 
     return (

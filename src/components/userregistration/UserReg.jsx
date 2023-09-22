@@ -496,21 +496,20 @@ const UserReg = () => {
       })
       .max(10, "Code can't exceed 10 digits"),
     phone: Yup.string()
-      .required('Phone is required')
-      .test('valid-phone', 'Invalid phone number', value => {
-        if (!value) return true; // Allow empty value
+      .test('valid-phone', 'Invalid phone number', (value) => {
+        if (!value) return false; // Phone is required and cannot be empty
 
-        // Check if the value starts with '+'
-        if (!value.startsWith('+')) {
+        // Check if the value consists of a plus sign followed by numbers
+        if (!/^\+\d+$/.test(value)) {
+          return false;
+        }
+        if (value.length < 8 || value.length > 14) {
           return false;
         }
 
-        // Check if the rest of the value is a valid number
-        const numberPart = value.slice(1); // Remove the '+' symbol
-        return !isNaN(numberPart);
+        return true; // Phone number is valid (contains a plus sign followed by numbers)
       })
-      .matches(/^\+\d{1,13}$/, 'Phone number should start with + and contain 1 to 13 digits')
-      .max(13, 'Phone number should not be more than 13 digits'),
+      .required('Phone is required'),
 
     city: Yup.string()
       .required('City is required')

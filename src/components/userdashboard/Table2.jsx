@@ -375,7 +375,7 @@ const Index = () => {
 
 
     const { data, isLoading, isError } = useQuery(
-        ['Products', selectedStatus],
+        ['Products', selectedStatus, userId],
         async () => {
 
             const response = await ProductApi.getProductsBySeller(selectedStatus, userId);

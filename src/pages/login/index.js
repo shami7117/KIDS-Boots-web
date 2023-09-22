@@ -10,7 +10,7 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import * as Yup from 'yup';
 import { InfinitySpin } from 'react-loader-spinner'
 import {
-  notification
+  notification, Input
 } from "antd";
 const Index = () => {
   const router = useRouter();
@@ -193,8 +193,8 @@ const Index = () => {
                       Password*
                     </label>
 
-                    <input
-                      type={Show ? "text" : "password"}
+                    <Input.Password
+                      type="password"
                       placeholder="Password"
                       name="password"
                       value={formData.password}
