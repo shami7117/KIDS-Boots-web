@@ -5,6 +5,8 @@ import { Montserrat } from 'next/font/google'
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Head from 'next/head'; // Import the Head component from Next.js
 import { SearchProvider } from '../components/navbar/searchContext';
+import { useRouter } from 'next/router';
+import Script from 'next/script'
 
 
 // import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
@@ -13,6 +15,12 @@ const queryClient = new QueryClient();
 const font = Montserrat({ subsets: ['latin'] })
 
 export default function App({ Component, pageProps }) {
+
+  const router = useRouter();
+  const items = router.query.Currency;
+  const currency = items === undefined || items === "USD" ? "USD" : "EUR"
+  console.log("APP JS CURRENCY", items)
+
   return (
     <QueryClientProvider client={queryClient}>
       <SearchProvider>

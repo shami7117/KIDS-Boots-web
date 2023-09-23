@@ -1,5 +1,4 @@
 import Image from "next/image";
-import PaypalModel from "./PaypalModel";
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 
@@ -80,13 +79,6 @@ const Cartcheckout = () => {
     });
 
 
-    const paypalScript = () => {
-        const script = document.createElement("script");
-        script.src = "https://www.paypal.com/sdk/js?client-id=AdOM2VEU6QamQhnfeJK0UTlajsCoAzNobIE-weZo0gx-R3Kbyo1UgXSC&currency=EURO"
-        script.type = "text/javascript";
-        script.async = true;
-        document.body.appendChild(script);
-    }
     useEffect(() => {
         let initialFromCurrency = query.Currency === 'EUR' ? 'USD' : 'EUR';
         let initialToCurrency = query.Currency === 'EUR' ? 'EUR' : 'USD';
@@ -648,21 +640,23 @@ const Cartcheckout = () => {
                                 </div>
 
                             </div>
-                            {isModalOpen && <PayPalButton
-                                amount={query.Currency === "USD" || query.Currency === undefined ? totalAmount : converted}                                // shippingPreference="NO_SHIPPING" // default is "GET_FROM_FILE"
-                                onSuccess={(details, data) => {
-                                    console.log("details", details)
-                                    console.log("data", data)
-                                    setOrderId(data.orderID);
-                                    setCreateTime(details.update_time);
-                                    setPaymentSource(data.paymentSource);
+                            {isModalOpen &&
+                                <PayPalButton
+                                    // currency={"USD"}
+                                    amount={query.Currency === "USD" || query.Currency === undefined ? totalAmount : converted}
+                                    onSuccess={(details, data) => {
+                                        console.log("details", details)
+                                        console.log("data", data)
+                                        setOrderId(data.orderID);
+                                        setCreateTime(details.update_time);
+                                        setPaymentSource(data.paymentSource);
 
 
 
 
 
-                                }}
-                            />}
+                                    }}
+                                />}
                             {CheckOrderId && <div className="  px-1 justify-start text-[red] flex items-center  whitespace-nowrap rounded-lg  text-[black] mb-1   mt-0">Payment is Required</div>}
                         </div>
                     </div>
