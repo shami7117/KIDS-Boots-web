@@ -268,14 +268,14 @@ const ProductPage = () => {
           <div className="mt-16">
             <ProductDetails />
           </div>
-          <div className="mt-16">
+          {/* <div className="mt-16">
             <h1 className="font-[700]  text-[24px] text-center">
               You May Also Like
             </h1>
             <div className="mt-10">
               <Like />
             </div>
-          </div>
+          </div> */}
         </div>
       </Wrapper>
     </div>
