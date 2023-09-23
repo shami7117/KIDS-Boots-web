@@ -6,8 +6,17 @@ import { Dropdown, Space, Typography } from 'antd';
 import Image from 'next/image';
 import { MdKeyboardArrowDown } from "react-icons/md";
 import Link from 'next/link';
+import { Select } from 'antd';
+import { useRouter } from 'next/router';
+
+const { Option } = Select;
 
 const UpperHeader = () => {
+    // const router = useRouter();
+    // const [Currency, setCurrency] = useState('USD');
+    // useEffect(() => {
+    //     router.push({ query: { currency: Currency } })
+    // })
     const items = [
         {
             key: '1',
@@ -40,15 +49,17 @@ const UpperHeader = () => {
                         <Link href="/faq">FAQ</Link>
                     </ul>
                     <div className='flex gap-6 items-center font-[400]'>
-                        <div>
-                            <p>
-                                $/USD
-                            </p>
-                        </div>
-                        {/* <div className='flex gap-2 items-center'> */}
-                        {/* <Image src={"/images/usa.png"} width={200} height={200} alt='' className='w-[25px]' /> */}
-                        {/* <MdKeyboardArrowDown size={20} /> */}
-                        {/* </div> */}
+                        <select defaultValue={"USD"}
+                            className='bg-transparent outline-none'
+                        // value={Currency}
+                        // onChange={(e) => { setCurrency(e.target.value); router.push({ query: { currency: Currency } }) }}
+                        >
+
+
+                            <option className='text-[#000] outline-none'
+                                value="USD">$USD</option>
+                            <option className='text-[#000] outline-none' value="EURO">€EURO</option>
+                        </select>
                     </div>
 
                 </div>

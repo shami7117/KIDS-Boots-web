@@ -32,31 +32,6 @@ const ProductListing = () => {
   const { searchText, searchResults } = state;
   console.log("searchText", searchText, "searchResult", searchResults)
 
-
-
-
-  // const handleSearch = async () => {
-
-  //   const snapshot = collection(db, "Products");
-  //   const searchTextLower = searchText.toLowerCase(); // Convert searchText to lowercase
-
-  //   const querySnapshot = await getDocs(
-  //     query(snapshot,
-  //       where('product', '>=', searchTextLower), // Compare lowercase product names
-  //       where('product', '<=', searchTextLower + '\uf8ff') // Compare lowercase product names
-  //     )
-  //   );
-
-  //   const results = [];
-  //   querySnapshot.forEach((doc) => {
-  //     results.push(doc.data());
-  //   });
-
-  //   setSearchResults(results);
-
-
-  // }
-
   const [Filter, setFilter] = useState({});
   const [heart, setHeart] = useState(false);
 
@@ -353,6 +328,8 @@ const ProductListing = () => {
   // Access the query parameter named "afo"
   const afoQueryParam = router?.query?.category;
   const country = router?.query?.country;
+  const idsArray = router?.query?.idsArray;
+  console.log("IDS ARRAY", idsArray)
 
   if (afoQueryParam !== undefined && Filter?.category !== null) {
 
@@ -373,12 +350,30 @@ const ProductListing = () => {
 
     }
   );
-  console.log("PRODUCTS", BootsData)
-  console.log("FILTER", Filter)
+  const { data: BootsByIdData, isLoading: BootsByIdLoading, isError: BootsByIdError } = useQuery(
+    ['Products', idsArray, Filter, currentPage],
+    async () => {
+
+      const response = await ProductApi.getCategoryWiseProductsById(Filter, currentPage, idsArray);
+      return response;// Assuming your API returns data property
+
+    }
+  );
+  console.log("PRODUCTS by ids", BootsByIdData)
 
 
-  // if (isLoading) {
-  //   return <h1>Loading...</h1>
+  // if (BootsByIdLoading) {
+  //   return <div className="flex h-[100vh] justify-center items-center"> <ThreeDots
+  //     height="100"
+  //     width="100"
+  //     radius="9"
+  //     color="#A51F6C"
+  //     ariaLabel="three-dots-loading"
+  //     wrapperStyle={{}}
+  //     wrapperClassName=""
+  //     visible={true}
+  //   />
+  //   </div>
   // }
   if (isError) {
     return <h1>Error</h1>
@@ -499,8 +494,77 @@ const ProductListing = () => {
                       </div>
                     }) :
                       searchResults.length === 0 && searchText !== '' ?
-                        <h1>No result found</h1> : BootsData?.map((card) => {
+                        <h1>No result found</h1> : idsArray === undefined ? BootsData?.map((card) => {
+                          return <div key={card.id} className='group flex flex-col justify-center items-center'>
+                            <div className='bg-[#d9d9d9b5] cursor-pointer pt-5 w-[276px] rounded-md justify-center items-center'>
+                              <Link href={`/product-details/${card.id}`}>
+                                <Image src={card?.file} alt='' width={200} height={200} className='m-auto w-[200px] h-[200px]' />
+                              </Link>
+                              <div className='flex gap-[1px] mt-10 items-opacity-0 group-hover:opacity-100 transition-all duration-300'>
+                                <div className='bg-[#2A2F4F] h-[45px] w-[51px] flex items-center justify-center bottom-0'>
+                                  <RiArrowLeftRightLine size={20} className='text-white' />
+                                </div>
 
+                                <button onClick={() => {
+                                  card['userId'] = userId;
+                                  card['productId'] = card.id;
+                                  addCartMutation.mutate(card)
+
+                                }} className='bg-[#A51F6C] text-white h-[45px] w-[175px] flex items-center justify-center bottom-0'>
+                                  Add to Cart
+                                </button>
+
+                                <div className='bg-[#2A2F4F] h-[45px] w-[51px] flex items-center justify-center bottom-0'>
+                                  {card.isHeartFilled ? (
+                                    <AiFillHeart
+                                      size={20}
+                                      className='text-[red] cursor-pointer'
+                                      onClick={() => {
+                                        setHeart(false)
+                                        console
+                                        updateMutation.mutate(card.id)
+                                        deleteMutation.mutate(card.id)
+
+                                      }}
+                                    />
+                                  ) : (
+                                    <AiOutlineHeart
+                                      size={20}
+                                      className='text-white cursor-pointer'
+                                      onClick={() => {
+                                        setHeart(true)
+                                        updateMutation.mutate(card.id)
+
+                                        data['userId'] = userId
+                                        addMutation.mutate(card)
+
+                                      }
+                                      }
+                                    />
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                            <div className='flex w-[276px] justify-center items-center text-center font-[600] text-[16px]'>
+                              <p className='mt-2 uppercase'>{card.product} ( {card.category})</p>
+                            </div>
+                            <div className='flex gap-3 my-1 items-center'>
+                              <span className='text-[#707070] text-xs line-through'>${card.price}</span>
+                              <span className='text-primary-pink-color text-[18px] font-[500]'>
+                                ${card.price}
+                              </span>
+                            </div>
+                            <div>
+                              <p className='text-[#777777] font-[500] text-[16px]'>Available Colors</p>
+                            </div>
+                            <div className='flex justify-center items-center mt-2'>
+                              <p
+                                className='w-[21px] h-[21px] border border-solid border-[2px] rounded-full'
+                                style={{ backgroundColor: `${card.color}` }}
+                              ></p>
+                            </div>
+                          </div>
+                        }) : BootsByIdData?.map((card) => {
                           return <div key={card.id} className='group flex flex-col justify-center items-center'>
                             <div className='bg-[#d9d9d9b5] cursor-pointer pt-5 w-[276px] rounded-md justify-center items-center'>
                               <Link href={`/product-details/${card.id}`}>
@@ -571,6 +635,7 @@ const ProductListing = () => {
                             </div>
                           </div>
                         })
+
                   }
                 </div>)
 

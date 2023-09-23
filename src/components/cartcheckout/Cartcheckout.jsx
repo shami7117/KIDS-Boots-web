@@ -2,7 +2,8 @@ import Image from "next/image";
 import PaypalModel from "./PaypalModel";
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { PayPalButton } from "react-paypal-button-v2";
+
+import { PayPalButton, } from "react-paypal-button-v2";
 import { useRouter } from "next/router";
 import * as Yup from 'yup';
 import {
@@ -47,15 +48,15 @@ const Cartcheckout = () => {
 
     const paypalScript = () => {
         const script = document.createElement("script");
-        script.src = "https://www.paypal.com/sdk/js?client-id=AdOM2VEU6QamQhnfeJK0UTlajsCoAzNobIE-weZo0gx-R3Kbyo1UgXSC&currency=USD"
+        script.src = "https://www.paypal.com/sdk/js?client-id=AdOM2VEU6QamQhnfeJK0UTlajsCoAzNobIE-weZo0gx-R3Kbyo1UgXSC&currency=EURO"
         script.type = "text/javascript";
         script.async = true;
         document.body.appendChild(script);
     }
 
-    useEffect(() => {
-        paypalScript();
-    }, [])
+    // useEffect(() => {
+    //     paypalScript();
+    // }, [])
 
 
     let userId
@@ -196,6 +197,7 @@ const Cartcheckout = () => {
         address: Yup.string().required('Address is required'),
 
     });
+    let currency = "EUR";
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -558,7 +560,7 @@ const Cartcheckout = () => {
                                 Total
                             </p>
                             <p className='text-[18px] font-[500] text-left'>
-                                ${totalAmount?.toFixed(2)}
+                                ${amount + percentCommission + CommissionData[0]?.shipping}
                             </p>
                         </div>
                     </div>
@@ -580,8 +582,7 @@ const Cartcheckout = () => {
 
                             </div>
                             {isModalOpen && <PayPalButton
-
-                                amount={totalAmount}
+                                amount={amount + percentCommission + CommissionData[0]?.shipping}
                                 // shippingPreference="NO_SHIPPING" // default is "GET_FROM_FILE"
                                 onSuccess={(details, data) => {
                                     console.log("details", details)
@@ -590,17 +591,10 @@ const Cartcheckout = () => {
                                     setCreateTime(details.update_time);
                                     setPaymentSource(data.paymentSource);
 
-                                    NotificationManager.success("Transact   ion Successful!");
 
 
 
-                                    // OPTIONAL: Call your server to save the transaction
-                                    // return fetch("/paypal-transaction-complete", {
-                                    //     method: "post",
-                                    //     body: JSON.stringify({
-                                    //         orderID: data.orderID
-                                    //     })
-                                    // });
+
                                 }}
                             />}
                             {CheckOrderId && <div className="  px-1 justify-start text-[red] flex items-center  whitespace-nowrap rounded-lg  text-[black] mb-1   mt-0">Payment is Required</div>}

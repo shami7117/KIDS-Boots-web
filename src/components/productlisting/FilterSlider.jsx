@@ -240,6 +240,7 @@ const FilterSidebar = ({ updateValue }) => {
         minPrice: '0',
         maxPrice: '0',
         color: '',
+        size: ''
 
     });
     console.log("COUNTRY OF FORM", formData.country)
@@ -348,6 +349,46 @@ const FilterSidebar = ({ updateValue }) => {
                                     {country}
                                 </option>
                             ))}
+                        </select>
+                    </div>
+
+
+                </div>
+                <hr className="border-t border-gray-400 my-6" />
+                <h3 className="text-[24px] font-semibold my-4 text-black">Size</h3>
+                <div className="relative">
+
+                    <div className="space-y-2">
+                        <select className="
+            block
+           w-full
+            -mb-4
+            xl:mb-0
+            mt-1
+             py-2 px-3  bg-[#B4C7ED0D] border-[#2668E826] border-2
+            rounded-md"
+                            onChange={(e) => {
+                                handleChange(e);
+
+                                setFormData({ ...formData, size: e.target.value });
+
+                            }}
+                            value={formData.size}
+                        >
+                            <option value="">Select size</option>
+                            <option value="0">0</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                            <option value="7">7</option>
+                            <option value="8">8</option>
+                            <option value="9">9</option>
+                            <option value="10">10</option>
+                            <option value="11">11</option>
+                            <option value="12">12</option>
                         </select>
                     </div>
 

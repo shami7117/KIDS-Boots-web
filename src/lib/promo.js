@@ -177,6 +177,50 @@ const getAllPromoCodes = async () => {
 };
 
 
+const getAllPromoCodeIds = async () => {
+    const ref = collection(db, "PromoCode");
+    const res = await getDocs(ref);
+    let promoCodes = [];
+
+    if (res.docs.length <= 0) {
+        console.log("All NOT WORKING");
+        return [];
+    } else {
+        res.forEach((doc) => {
+            const data = doc.data();
+            const productIds = [];
+            const splitArray = [];
+            // Assuming products is an array of objects with a name and id field
+            if (data.products && Array.isArray(data.products)) {
+                data.products.forEach((product) => {
+                    // Assuming product is an object with name and id as properties
+                    const { name, id } = product;
+                    const parts = product.split(",");
+
+                    // Assuming there are two parts (name and id)
+                    if (parts.length === 2) {
+                        const name = parts[0].trim(); // Trim to remove leading/trailing spaces
+                        const id = parts[1].trim(); // Trim to remove leading/trailing spaces
+                        productIds.push(id);
+
+                    }
+
+
+                });
+
+            }
+
+
+
+            // Add the productIds array to the promo code data
+            promoCodes.push({ ...data, id: doc.id, PRODUCT_IDs: productIds });
+        });
+
+        console.log("All Promo Codes", promoCodes);
+
+        return promoCodes;
+    }
+};
 
 
 const PromoApi = {
@@ -186,7 +230,8 @@ const PromoApi = {
     activatePromo,
     deActivatePromo,
     deletePromo, getPromoById,
-    getAllPromoCodes
+    getAllPromoCodes,
+    getAllPromoCodeIds
 };
 
 export default PromoApi;

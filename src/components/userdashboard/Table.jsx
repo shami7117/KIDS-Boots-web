@@ -97,8 +97,6 @@ const Index = () => {
 
     );
 
-    console.log("ALL PROMOS", AllDATA)
-
 
     const PromoCodes = [
         {

@@ -79,6 +79,25 @@ const Navbar = () => {
     };
 
 
+    const { data, isLoading, isError } = useQuery(
+        ['PromoCode',],
+        async () => {
+
+            const response = await PromoCodeApi.getAllPromoCodeIds();
+            return response;// Assuming your API returns data property
+
+        }
+
+    ); console.log("NAVABR IDS", data);
+
+    const ProductIDS = data?.map((item) => item.PRODUCT_IDs)
+    const idsArray = [];
+    ProductIDS?.flatMap((ids) => ids).forEach((id) => {
+        idsArray.push(id) // Use true as a value for each ID, or you can use any other value you prefer.
+    });
+
+    // console.log("sArray IDS", idsArray); 
+
 
 
     useEffect(() => {
@@ -99,33 +118,7 @@ const Navbar = () => {
 
 
 
-    const { data: AllDATA, isLoading: AllLoading, isError: ALLERROR } = useQuery(
-        ['PromoCode'],
-        async () => {
 
-            const response = await PromoCodeApi.getAllPromoCodes();
-            return response;// Assuming your API returns data property
-
-        }
-
-    );
-
-    const arrayOfArrays = AllDATA?.map((item) => { return item?.PRODUCT_IDs });
-
-    if (arrayOfArrays) {
-        const resultObject = {};
-
-        for (const subArray of arrayOfArrays) {
-            for (const id of subArray) {
-                resultObject[id] = true;
-            }
-        }
-
-        const resultArray = Object.keys(resultObject).map(Number);
-
-        console.log("RESULT", resultArray)
-    }
-    console.log("ALL PROMOS", AllDATA)
 
     const { token } = useToken();
 
@@ -167,6 +160,7 @@ const Navbar = () => {
     const closeMenu = () => {
         setNav(false);
     };
+
     return (
         <div>
             <UpperHeader />
@@ -211,7 +205,7 @@ const Navbar = () => {
                                     </div>
                                     <button>
 
-                                        <Link href="/product-listing" className='flex items-center gap-3'>
+                                        <Link href={{ pathname: "/product-listing", query: { idsArray: idsArray } }} className='flex items-center gap-3'>
                                             <Image src={'/images/price.png'} alt="" width={300} height={300} className='h-[22px] w-[22px]' style={{
                                                 objectFit: 'contain',
                                             }} />

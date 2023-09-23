@@ -7,7 +7,7 @@ import {
   getDocs,
   query,
   setDoc,
-  where, updateDoc, limit, startAfter
+  where, updateDoc, limit, startAfter, orderBy, FieldPath
 } from "firebase/firestore";
 import { v4 as uuidv4 } from "uuid";
 
@@ -68,6 +68,9 @@ const getCategoryWiseProducts = async (filters, page) => {
     if (filters.country !== '') {
       q = query(q, where("country", "==", filters.country));
     }
+    if (filters.size !== '') {
+      q = query(q, where("size", "==", filters.size));
+    }
 
     // Add color filter if provided
     if (filters.color !== '') {
@@ -114,9 +117,94 @@ const getCategoryWiseProducts = async (filters, page) => {
   }
 };
 
+const getCategoryWiseProductsById = async (filters, page, productIds) => {
+  const ref = collection(db, "Products");
+  console.log("FILTERS", filters);
+  console.log("PAGE NUMBER", page);
+  console.log("api ids", productIds);
+
+  let res;
+  const pageSize = 24; // Number of products per page
+
+  // Initialize the query without any filters
+  let q = ref;
+
+  if (filters) {
+    // Add category filter if provided
+    if (filters.category !== '') {
+      q = query(q, where("category", "==", filters.category));
+    }
+
+    // Add country filter if provided
+    if (filters.country !== '') {
+      q = query(q, where("country", "==", filters.country));
+    }
+    if (filters.size !== '') {
+      q = query(q, where("size", "==", filters.size));
+    }
+    // Add color filter if provided
+    if (filters.color !== '') {
+      q = query(q, where("color", "==", filters.color));
+    }
+
+    // Add minPrice and maxPrice filters if provided
+    if (filters.minPrice !== '0') {
+      q = query(q, where("price", ">=", filters.minPrice));
+    }
+
+    if (filters.maxPrice !== '0') {
+      q = query(q, where("price", "<=", filters.maxPrice));
+    }
+  }
+
+  // Determine the start point based on the page number
+  if (page > 1) {
+    const lastVisibleDoc = await getLastVisibleDoc(filters, page - 1);
+    if (lastVisibleDoc) {
+      q = query(q, startAfter(lastVisibleDoc));
+    }
+  }
+
+  // Limit the query to the page size
+  q = query(q, limit(pageSize));
+
+  // Execute the query with filters and pagination
+  res = await getDocs(q);
+
+  let docs = [];
+  if (res.docs.length <= 0) {
+    return [];
+  } else {
+    res.forEach((doc) => {
+      if (productIds.includes(doc.id)) { // Only push products with matching doc.id
+        docs.push({
+          ...doc.data(),
+          id: doc.id,
+          createdAt: doc?.data()?.createdAt?.toDate()?.toString(),
+        });
+      }
+    });
+    console.log("DOCS", docs);
+
+    return docs;
+  }
+};
+
+
+
+// Custom filter function to filter documents by IDs
+function filterByIds(ids) {
+  return (doc) => ids.includes(doc.data().id); // Replace "id" with the actual field name representing the product ID
+}
+
+
+
+
+
+
 // Helper function to get the last visible document for pagination
 const getLastVisibleDoc = async (filters, page) => {
-  const pageSize = 12; // Number of products per page
+  const pageSize = 40; // Number of products per page
   const ref = collection(db, "Products");
 
   let q = ref;
@@ -409,6 +497,7 @@ const ProductApi = {
   getPopularProducts,
   getFeaturedProducts,
   getCategoryWiseProducts,
+  getCategoryWiseProductsById,
   updateHeart,
   getProductsBySeller,
   getAllProducts
