@@ -16,9 +16,9 @@ import { auth, db } from "../../../Firebase/firebase.js";
 import CommissionApi from "@/lib/commission";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ThreeDots } from 'react-loader-spinner'
+import axios from 'axios';
 
 const Cartcheckout = () => {
-
 
     const router = useRouter();
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -27,8 +27,42 @@ const Cartcheckout = () => {
     const [PaymentSource, setPaymentSource] = useState('');
     const [CheckOrderId, setCheckOrderId] = useState(false);
     const { query } = router;
+    console.log(" query CURRENCY", query.Currency)
     const [errors, setErrors] = useState({});
     const [loading, setLoading] = useState(false);
+
+    let initialFromCurrency = query.Currency === 'EUR' ? 'EUR' : 'USD';
+    let initialToCurrency = query.Currency === 'EUR' ? 'USD' : 'EUR';
+
+
+
+    const [fromCurrency, setFromCurrency] = useState(initialFromCurrency);
+    const [toCurrency, setToCurrency] = useState(initialToCurrency);
+
+    const [exchangeRate, setExchangeRate] = useState(null);
+    const [convertedAmount, setConvertedAmount] = useState(null);
+    const [isAmount, setAmount] = useState(1);
+
+
+
+    console.log("FROm", fromCurrency)
+    console.log("TO", toCurrency)
+
+
+    const handleAmountChange = (e) => {
+        setAmount(totalAmount);
+    };
+
+    const handleFromCurrencyChange = (selectedOption) => {
+        setFromCurrency(selectedOption.value);
+    };
+
+    const handleToCurrencyChange = (selectedOption) => {
+        setToCurrency(selectedOption.value);
+    };
+    console.log("RATE", exchangeRate)
+
+
 
 
     const [formData, setFormData] = useState({
@@ -53,12 +87,33 @@ const Cartcheckout = () => {
         script.async = true;
         document.body.appendChild(script);
     }
-
+    useEffect(() => {
+        let initialFromCurrency = query.Currency === 'EUR' ? 'USD' : 'EUR';
+        let initialToCurrency = query.Currency === 'EUR' ? 'EUR' : 'USD';
+        setFromCurrency(initialFromCurrency);
+        setToCurrency(initialToCurrency)
+        // Fetch exchange rate data when the component mounts
+        axios.get(`https://api.exchangerate-api.com/v4/latest/EUR`)
+            .then((response) => {
+                const rates = response.data.rates;
+                const rate = rates[toCurrency];
+                setExchangeRate(rate);
+            })
+            .catch((error) => {
+                console.error('Error fetching exchange rates:', error);
+            });
+    });
     // useEffect(() => {
     //     paypalScript();
     // }, [])
 
 
+
+    // useEffect(() => {
+    //     // Update converted amount when either the amount or exchange rate changes
+
+    // }, [isAmount, exchangeRate]
+    // );
     let userId
     try {
 
@@ -82,7 +137,6 @@ const Cartcheckout = () => {
     );
     console.log("COMMISSION", CommissionData);
 
-
     if (isLoading) {
         return <div className="flex justify-center items-center"> <ThreeDots
             height="100"
@@ -99,7 +153,6 @@ const Cartcheckout = () => {
     if (isError) {
         return <h1>Error</h1>
     }
-
 
 
     const items = query.items;
@@ -121,9 +174,19 @@ const Cartcheckout = () => {
 
 
 
-
     const percentCommission = ((CommissionData && CommissionData[0]?.buyer / 100) * amount);
-    totalAmount = percentCommission + amount + CommissionData && CommissionData[0]?.shipping;
+    totalAmount = amount + percentCommission + CommissionData[0]?.shipping;
+
+
+
+    let converted
+
+    if (exchangeRate !== null) {
+        converted = totalAmount * exchangeRate;
+        console.log("EXCANGE CURRENCY", converted)
+        console.log("EXCANGE AMOUNT ", totalAmount)
+    }
+
 
 
     const validationSchema = Yup.object().shape({
@@ -300,6 +363,10 @@ const Cartcheckout = () => {
     const handleModalClose = () => {
         setIsModalOpen(false);
     };
+
+
+
+
     return (
         <div>
             <NotificationContainer />
@@ -560,7 +627,7 @@ const Cartcheckout = () => {
                                 Total
                             </p>
                             <p className='text-[18px] font-[500] text-left'>
-                                ${amount + percentCommission + CommissionData[0]?.shipping}
+                                {query.Currency === "EUR" ? "€" : "$"} {query.Currency === "USD" || query.Currency === undefined ? totalAmount : converted}
                             </p>
                         </div>
                     </div>
@@ -582,8 +649,7 @@ const Cartcheckout = () => {
 
                             </div>
                             {isModalOpen && <PayPalButton
-                                amount={amount + percentCommission + CommissionData[0]?.shipping}
-                                // shippingPreference="NO_SHIPPING" // default is "GET_FROM_FILE"
+                                amount={query.Currency === "USD" || query.Currency === undefined ? totalAmount : converted}                                // shippingPreference="NO_SHIPPING" // default is "GET_FROM_FILE"
                                 onSuccess={(details, data) => {
                                     console.log("details", details)
                                     console.log("data", data)

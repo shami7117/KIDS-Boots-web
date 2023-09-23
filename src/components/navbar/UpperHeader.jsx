@@ -12,8 +12,8 @@ import { useRouter } from 'next/router';
 const { Option } = Select;
 
 const UpperHeader = () => {
-    // const router = useRouter();
-    // const [Currency, setCurrency] = useState('USD');
+    const router = useRouter();
+    const [Currency, setCurrency] = useState('USD');
     // useEffect(() => {
     //     router.push({ query: { currency: Currency } })
     // })
@@ -51,14 +51,26 @@ const UpperHeader = () => {
                     <div className='flex gap-6 items-center font-[400]'>
                         <select defaultValue={"USD"}
                             className='bg-transparent outline-none'
-                        // value={Currency}
-                        // onChange={(e) => { setCurrency(e.target.value); router.push({ query: { currency: Currency } }) }}
+                            value={Currency}
+                            onChange={(e) => {
+                                setCurrency(e.target.value)
+                                const currentQueryParams = { ...router.query };
+
+                                // Add a new query parameter
+                                currentQueryParams.Currency = e.target.value;
+
+                                // Update the URL with the new query parameters
+                                router.push({
+                                    pathname: router.pathname === "/cart-checkout" && '/cart-checkout', // Use the current path
+                                    query: currentQueryParams, // Updated query parameters
+                                });
+                            }}
                         >
 
 
                             <option className='text-[#000] outline-none'
                                 value="USD">$USD</option>
-                            <option className='text-[#000] outline-none' value="EURO">€EURO</option>
+                            <option className='text-[#000] outline-none' value="EUR">€EURO</option>
                         </select>
                     </div>
 

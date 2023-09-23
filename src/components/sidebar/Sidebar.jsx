@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { BsBoxFill } from 'react-icons/bs';
 import { IoBagAdd } from 'react-icons/io5';
 import { FaUser } from 'react-icons/fa';
@@ -27,9 +27,6 @@ import { ThreeDots } from 'react-loader-spinner'
 
 const Sidebar = () => {
 
-    const handleItemClick = (index) => {
-        setActiveItem(index === activeItem ? null : index);
-    };
 
 
     let userId
@@ -52,7 +49,7 @@ const Sidebar = () => {
 
         }
     );
-    const [activeItem, setActiveItem] = useState(SellerData !== null ? "window1" : "window4");
+
 
     const { data: buyerData, isLoading: buyerLoading, isError: buyerError } = useQuery(
         ['Buyers', userId],
@@ -63,8 +60,22 @@ const Sidebar = () => {
 
         }
     );
+
+    const [activeItem, setActiveItem] = useState("window1");
+
+    useEffect(() => {
+        if (SellerData === null) {
+            setActiveItem("window4");
+        }
+    }, [SellerData]);
+
+
+
+
+
     console.log("SELLER", SellerData)
     console.log("BUYER", buyerData)
+    console.log("ACTIVE", activeItem)
     if (isLoading) {
         return <div className="flex justify-center items-center"> <ThreeDots
             height="150"

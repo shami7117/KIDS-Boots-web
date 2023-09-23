@@ -201,7 +201,6 @@ const Index = () => {
                       onChange={handleChange}
                       className="md:w-[400px] h-[50px] px-5 bg-[#B4C7ED0D] border border-[#2668E826] rounded-md"
                     />
-                    <p onClick={() => { setShow(!Show) }} className="self-end cursor-pointer">{Show ? <span>Hide</span> : <span>Show</span>}</p>
                     {errors.password && <div className="px-1 justify-start text-[red] flex items-center  whitespace-nowrap rounded-lg  text-[black] mb-1   ">{errors.password}</div>}
 
                     <div className="flex items-center justify-between my-4">
