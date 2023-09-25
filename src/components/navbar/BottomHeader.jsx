@@ -42,32 +42,6 @@ const BottomHeader = () => {
     console.log("User's country:", userCountry);
 
 
-    // const locationEnable = () => {
-    //     try {
-    //         if ('geolocation' in navigator) {
-    //             try {
-    //                 navigator.geolocation.getCurrentPosition(async (position) => {
-    //                     const { coords } = position;
-    //                     const response = await fetch(
-    //                         `https://geocode.xyz/${coords.latitude},${coords.longitude}?json=1`
-    //                     );
-    //                     const data = await response.json();
-    //                     console.log("DATA", data)
-
-    //                     setUserCountry(data.country);
-    //                 });
-    //             } catch (error) {
-    //                 console.log("LOCATION ERROR", error)
-    //                 setUserCountry('');
-
-    //             }
-    //         } else {
-    //             setUserCountry('Geolocation is not available in your browser.');
-    //         }
-    //     } catch (error) {
-    //         console.log(error)
-    //     }
-    // };
 
     console.log("COUNTRY", userCountry)
     const handleLocationClick = async () => {
@@ -94,9 +68,9 @@ const BottomHeader = () => {
     return (
         <div className='bg-primary-purple-color text-white h-[54px] md:flex hidden'>
             <Wrapper>
-                <div className='flex justify-between gap-[40rem] py-4'>
+                <div className='flex justify-between items-center gap-[40rem] py-4'>
                     <div>
-                        <ul className='flex gap-6 items-center cursor-pointer'>
+                        <ul className='flex gap-6 items-center justify-between cursor-pointer'>
                             <Link href="/">
                                 Home
                             </Link>
@@ -126,14 +100,15 @@ const BottomHeader = () => {
 
 
                         </ul>
+
                     </div>
                     <div onClick={handleLocationClick}
 
-                        className='hidden gap-1 whitespace-nowrap justify-center items-center cursor-pointer xl:flex'>
+                        className='hidden gap-1   whitespace-nowrap justify-center items-center cursor-pointer xl:flex'>
 
                         <HiOutlineLocationMarker size={21} />
                         <p>
-                            {userCountry !== null ? userCountry : <span>Enable Location</span>}
+                            {userCountry !== null ? userCountry : <span >Enable Location</span>}
                         </p>
                         {/* <MdKeyboardArrowDown size={21} /> */}
                     </div>

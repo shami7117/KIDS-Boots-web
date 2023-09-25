@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import React from 'react'
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import * as Yup from 'yup';
 import {
     collection,
@@ -478,6 +478,30 @@ const SellerReg = () => {
         country.label.toLowerCase().includes(searchText.toLowerCase())
     );
 
+
+    const [selectedCountry, setSelectedCountry] = useState('');
+
+
+    // Find the country object with the matching code
+    const selectedCountries = countryCodes.filter((country) =>
+
+        country.value.toLowerCase().includes(selectedCountryCode.toLowerCase())
+
+    )
+
+    useEffect(() => {
+        const countryName = selectedCountries[0].label?.match(/^(.*?)\s+\(\+\d+\)$/);
+
+        if (countryName && countryName.length >= 2) {
+            const extractedCountryName = countryName[1];
+            setSelectedCountry(extractedCountryName)
+            console.log(extractedCountryName); // This will print "Honduras"
+        } else {
+            console.log("Country name not found in the input string");
+        }
+    })
+
+
     const validationSchema = Yup.object().shape({
         fname: Yup.string()
             .required('First Name is required')
@@ -532,9 +556,7 @@ const SellerReg = () => {
         password2: Yup.string()
             .required('Password confirmation is required')
             .oneOf([Yup.ref('password1'), null], 'Passwords must match'),
-        country: Yup.string().required('Please select a country').test('not-select-category', 'Please select a Valid Country', value => {
-            return value !== 'Select Country';
-        }),
+
         address: Yup.string().required('Address is required'),
         shopAddress: Yup.string().required('Shop Address is required'),
 
@@ -580,9 +602,7 @@ const SellerReg = () => {
         password2: Yup.string()
             .required('Password confirmation is required')
             .oneOf([Yup.ref('password1'), null], 'Passwords must match'),
-        country: Yup.string().required('Please select a country').test('not-select-category', 'Please select a Valid Country', value => {
-            return value !== 'Select Country';
-        }),
+
         address: Yup.string().required('Address is required'),
 
     });
@@ -636,7 +656,7 @@ const SellerReg = () => {
                 email: formData.email,
                 lastName: formData.lname,
                 shop: formData.shop,
-                country: formData.country,
+                country: selectedCountry,
                 phone: fullNumber,
                 register: formData.register,
                 address: formData.address
@@ -869,7 +889,7 @@ const SellerReg = () => {
                 {/* =================== */}
 
                 <div className='xl:mt-3 xl:flex xl:justify-between'>
-                    <div >
+                    {/* <div >
                         <label className="block w-full mb-6">
                             <span className="text-[16px] font-[500] text-[black]">Country*</span>
 
@@ -898,21 +918,22 @@ const SellerReg = () => {
 
                             {errors.country && <div className="  px-1 justify-start text-[red] flex items-center  whitespace-nowrap rounded-lg  text-[black] mb-1 mt-1  mt-0">{errors.country}</div>}
                         </label>
-                    </div>
+                    </div> */}
 
                     {/* =============================== */}
-                    <div>
-                        <label className="block mb-6">
+                    <div className=' w-full'>
+                        <label className=" w-full mb-6">
                             <span className="text-[16px] font-[500] text-[black]">Register as*</span>
 
                             <select
+                                value={formData.register}
+                                onChange={handleChange}
 
                                 name="register"
                                 placeholder='Select Category'
                                 className="
             block
-            xl:w-96
-                w-72
+           w-full
             -mb-4
             xl:mb-0
             mt-1
@@ -944,18 +965,19 @@ const SellerReg = () => {
                         {errors.address && <div className="  px-1 justify-start text-[red] flex items-center  whitespace-nowrap rounded-lg  text-[black] mb-1 mt-1  mt-0">{errors.address}</div>}
                     </label>
                 </div>
-                {formData.register === 'Company' && <> <h1 className="text-2xl font-semibold">Shop Information</h1>
-                    <p className="text-[16px] font-[400] text-[#777777] mb-8">Fill the form below or write us .We will help you as soon as possible.</p>
-                    <div>
-                        <label className="block mb-6">
-                            <span className="text-[16px] font-[500] text-[black]">Shop Name*</span>
-                            <input
-                                value={formData.shop}
-                                onChange={handleChange}
-                                type="text"
-                                name="shop"
+                {formData.register === 'Company' &&
+                    <> <h1 className="text-2xl font-semibold">Shop Information</h1>
+                        <p className="text-[16px] font-[400] text-[#777777] mb-8">Fill the form below or write us .We will help you as soon as possible.</p>
+                        <div>
+                            <label className="block mb-6">
+                                <span className="text-[16px] font-[500] text-[black]">Shop Name*</span>
+                                <input
+                                    value={formData.shop}
+                                    onChange={handleChange}
+                                    type="text"
+                                    name="shop"
 
-                                className="
+                                    className="
             block
             xl:w-full
             w-72
@@ -967,26 +989,26 @@ const SellerReg = () => {
 
              py-2 px-3 bg-[#B4C7ED0D] border-[#2668E826]  border-2
           "
-                                placeholder="James Shop Online"
-                            />
-                            {errors.shop && <div className="  px-1 justify-start text-[red] flex items-center  whitespace-nowrap rounded-lg  text-[black] mb-1 mt-1  mt-0">{errors.shop}</div>}
-                        </label>
-                    </div>
-                    <div>
-                        <label className="block mb-6">
-                            <span className="text-[16px] font-[500] text-black">Address*</span>
-                            <input
+                                    placeholder="James Shop Online"
+                                />
+                                {errors.shop && <div className="  px-1 justify-start text-[red] flex items-center  whitespace-nowrap rounded-lg  text-[black] mb-1 mt-1  mt-0">{errors.shop}</div>}
+                            </label>
+                        </div>
+                        <div>
+                            <label className="block mb-6">
+                                <span className="text-[16px] font-[500] text-black">Address*</span>
+                                <input
 
-                                value={formData.shopAddress}
-                                onChange={handleChange}
-                                type="text"
-                                name="shopAddress"
-                                className="block xl:w-full pb-10 w-72 mt-1 mb-6 xl:mb-0 rounded-md py-2 px-3 bg-[#B4C7ED0D] border-[#2668E826]  border-2"
-                                placeholder="Write your complete address here"
-                            />
-                            {errors.shopAddress && <div className="  px-1 justify-start text-[red] flex items-center  whitespace-nowrap rounded-lg  text-[black] mb-1 mt-1  mt-0">{errors.shopAddress}</div>}
-                        </label>
-                    </div></>}
+                                    value={formData.shopAddress}
+                                    onChange={handleChange}
+                                    type="text"
+                                    name="shopAddress"
+                                    className="block xl:w-full pb-10 w-72 mt-1 mb-6 xl:mb-0 rounded-md py-2 px-3 bg-[#B4C7ED0D] border-[#2668E826]  border-2"
+                                    placeholder="Write your complete address here"
+                                />
+                                {errors.shopAddress && <div className="  px-1 justify-start text-[red] flex items-center  whitespace-nowrap rounded-lg  text-[black] mb-1 mt-1  mt-0">{errors.shopAddress}</div>}
+                            </label>
+                        </div></>}
 
                 <div className="xl:mt-3 xl:flex xl:justify-between">
                     <div>

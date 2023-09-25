@@ -25,6 +25,39 @@ import { useRouter } from "next/router.js";
 import { ThreeDots } from 'react-loader-spinner'
 import UserApi from "@/lib/buyer.js";
 const ProfilePage = () => {
+
+  let userId
+  let user
+  try {
+    user = auth.currentUser;
+    userId = user.uid
+  } catch (error) {
+    console.log(error)
+  }
+
+  const deleteUser = async () => {
+
+    // Delete the user by UID
+    const user = auth.currentUser; // Get the currently signed-in user
+    if (user) {
+      user
+        .delete()
+        .then(() => {
+          // User account has been deleted
+          notification.open({
+            type: "success",
+            message: "Account  deleted successfully",
+            placement: "top",
+          });
+        })
+        .catch((error) => {
+          // An error occurred
+          console.error('Error deleting user account:', error);
+        });
+    }
+
+
+  };
   const queryClient = useQueryClient();
   const router = useRouter();
   const countries = [
@@ -240,7 +273,7 @@ const ProfilePage = () => {
       onSuccess: (data) => {
         notification.open({
           type: "success",
-          message: "Profile been updated successfully!",
+          message: "Profile has been updated successfully!",
           placement: "top",
         });
         queryClient.invalidateQueries(["Sellers"]);
@@ -497,16 +530,70 @@ const ProfilePage = () => {
 
 
   const [filteredCountries, setFilteredCountries] = useState(countries);
-  let userId
-
-  try {
-    const user = auth.currentUser;
-    userId = user.uid
-  } catch (error) {
-    console.log(error)
-  }
+  const [selectedCountry, setSelectedCountry] = useState('');
 
 
+  // Find the country object with the matching code
+  const selectedCountries = countryCodes.filter((country) =>
+
+    country.value.toLowerCase().includes(selectedCountryCode.toLowerCase())
+
+  )
+
+  useEffect(() => {
+    const countryName = selectedCountries[0].label?.match(/^(.*?)\s+\(\+\d+\)$/);
+
+    if (countryName && countryName.length >= 2) {
+      const extractedCountryName = countryName[1];
+      setSelectedCountry(extractedCountryName)
+      console.log(extractedCountryName); // This will print "Honduras"
+    } else {
+      console.log("Country name not found in the input string");
+    }
+  })
+
+
+  const deleteSellerMutation = useMutation(
+    ["Sellers"],
+    async (id) => {
+      console.log("MUTATION", id)
+      await SellerApi.deleteSeller(id);
+    },
+    {
+      onError: (data) => { },
+      onSuccess: () => {
+        notification.open({
+          type: "success",
+          message: "Seller deleted successfully!",
+          placement: "top",
+        });
+        queryClient.invalidateQueries(["Sellers"]);
+        setShowDeleteConfirmationModal(false)
+        setEditModalVisible(false)
+      },
+    }
+  );
+
+  const deleteBuyerMutation = useMutation(
+    ["Buyers"],
+    async (id) => {
+      console.log("MUTATION", id)
+      await BuyerApi.deleteUser(id);
+    },
+    {
+      onError: (data) => { },
+      onSuccess: () => {
+        notification.open({
+          type: "success",
+          message: "Buyer deleted successfully!",
+          placement: "top",
+        });
+        queryClient.invalidateQueries(["Buyers"]);
+        setShowDeleteConfirmationModal(false)
+        setEditModalVisible(false)
+      },
+    }
+  );
   const { data, isLoading, isError } = useQuery(
     ['Sellers', userId],
     async () => {
@@ -525,16 +612,31 @@ const ProfilePage = () => {
 
     }
   );
+  const [isUser, setUser] = useState(false)
+
   const [formData, setFormData] = useState({
-    firstName: data !== null ? data?.firstName : BuyerData?.firstName,
-    lastName: data !== null ? data?.lastName : BuyerData?.lastName,
-    email: data !== null ? data?.email : BuyerData?.email,
-    phone: data !== null ? data?.phone : BuyerData?.phone,
-    country: data !== null ? data?.country : BuyerData?.country,
-    register: data !== null ? data?.register : BuyerData?.register,
-    address: data !== null ? data?.address : BuyerData?.address,
+    firstName: isUser ? data?.firstName : BuyerData?.firstName,
+    lastName: isUser ? data?.lastName : BuyerData?.lastName,
+    email: isUser ? data?.email : BuyerData?.email,
+    phone: isUser ? data?.phone : BuyerData?.phone,
+    country: isUser ? data?.country : BuyerData?.country,
+    register: isUser ? data?.register : BuyerData?.register,
+    address: isUser ? data?.address : BuyerData?.address,
   });
 
+  const handleDelete = () => {
+    if (data !== null) {
+      deleteSellerMutation.mutate(data?.id)
+      logOut();
+      deleteUser()
+    }
+    else {
+      deleteBuyerMutation.mutate(BuyerData?.id)
+      logOut();
+      deleteUser()
+
+    }
+  }
 
   console.log("SELLER", data)
   const [errors, setErrors] = useState({});
@@ -582,9 +684,7 @@ const ProfilePage = () => {
         return true; // Phone number is valid (contains a plus sign followed by numbers)
       })
       .required('Phone is required'),
-    country: Yup.string().required('Please select a country').test('not-select-category', 'Please select a Valid Country', value => {
-      return value !== 'Select Country';
-    }),
+
     address: Yup.string().required('Address is required'),
 
   });
@@ -612,24 +712,21 @@ const ProfilePage = () => {
     email: Yup.string().email('Invalid email').required('Email is required'),
 
     phone: Yup.string()
-      .required('Phone is required')
-      .test('valid-phone', 'Invalid phone number', value => {
-        if (!value) return true; // Allow empty value
+      .test('valid-phone', 'Invalid phone number', (value) => {
+        if (!value) return false; // Phone is required and cannot be empty
 
-        // Check if the value starts with '+'
-        if (!value.startsWith('+')) {
+        // Check if the value consists of a plus sign followed by numbers
+        if (!/^\+\d+$/.test(value)) {
+          return false;
+        }
+        if (value.length < 8 || value.length > 14) {
           return false;
         }
 
-        // Check if the rest of the value is a valid number
-        const numberPart = value.slice(1); // Remove the '+' symbol
-        return !isNaN(numberPart);
+        return true; // Phone number is valid (contains a plus sign followed by numbers)
       })
-      .matches(/^\+\d{1,11}$/, 'Phone number should start with + and contain 1 to 11 digits')
-      .max(13, 'Phone number should not be more than 13 digits'),
-    country: Yup.string().required('Please select a country').test('not-select-category', 'Please select a Valid Country', value => {
-      return value !== 'Select Country';
-    }),
+      .required('Phone is required'),
+
     address: Yup.string().required('Address is required'),
 
   });
@@ -678,7 +775,7 @@ const ProfilePage = () => {
           firstName: formData.firstName,
           email: formData.email,
           lastName: formData.lastName,
-          country: formData.country,
+          country: selectedCountry,
           phone: formData.phone,
           register: formData?.register,
           address: formData.address
@@ -696,7 +793,7 @@ const ProfilePage = () => {
           firstName: formData.firstName,
           email: formData.email,
           lastName: formData.lastName,
-          country: formData.country,
+          country: selectedCountry,
           phone: formData.phone,
           address: formData.address
         };
@@ -772,6 +869,16 @@ const ProfilePage = () => {
     }
 
   }
+
+  useEffect(() => {
+    if (data !== null) {
+      setUser(true)
+    }
+    else {
+      setUser(false)
+    }
+  })
+
   if (isLoading) {
     return <div className="flex justify-center items-center"> <ThreeDots
       height="150"
@@ -822,7 +929,7 @@ const ProfilePage = () => {
               </div>
             </div>
 
-            <h1 className="font-semibold mt-4 text-[18px]">{data !== null ? data.firstName : BuyerData?.firstName} {data !== null ? data.lastName : BuyerData?.lastName}  </h1>
+            <h1 className="font-semibold mt-4 text-[18px]">{isUser ? data.firstName : BuyerData?.firstName} {isUser ? data.lastName : BuyerData?.lastName}  </h1>
             <h1 className="font-normal mt-1 text-[#777777]">Businessmen</h1>
             <div className="flex gap-2">
               <Image
@@ -831,18 +938,18 @@ const ProfilePage = () => {
                 height={10}
                 alt="dd"
               ></Image>
-              <h1 className="font-normal mt-1 text-[#1A9CDA]">{data !== null ? data.country : BuyerData?.country}  </h1>
+              <h1 className="font-normal mt-1 text-[#1A9CDA]">{isUser ? data.country : BuyerData?.country}  </h1>
             </div>
-            <div className="mt-0 w-full mt-0 flex flex-col  ">
+            <div className="mt-0 w-full mt-0 flex flex-col gap-y-2 mt-1 ">
               <button onClick={logOut} className="w-full bg-[#1A9CDA] text-white py-2 rounded-[5px] text-[16px] font-[500]">
                 Log Out
               </button>
-              {/* <button className="w-full border py-2 rounded-[5px] text-[16px] font-[500]">
+              <button onClick={handleDelete} className="w-full border py-2  bg-[#A51F6C] text-white rounded-[5px] text-[16px] font-[500]">
                 Delete Account
-              </button> */}
+              </button>
             </div>
           </div>
-          <div className="w-full flex flex-grow flex-1 flex-wrap mt-2 md:mt-0">
+          <div className="w-full flex flex-grow flex-1 flex-wrap mt-2 md:mt-4">
             <div className="bg-[#FFFFFF] flex flex-col md:h-[150px]  border justify-around  shadow-md md:w-[260px] rounded-lg py-3 px-5 sm:ml-3   md:ml-0 md:my-3 w-full   h-full overflow-hidden">
               <div className="flex items-start my-2 ">
                 <div className="relative w-5 h-5 mr-3">
@@ -853,7 +960,7 @@ const ProfilePage = () => {
                     alt="Email Icon"
                   />
                 </div>
-                <p className="md:text-[14px] text-[12px]  font-[400]">{data !== null ? data.email : BuyerData?.email}</p>
+                <p className="md:text-[14px] text-[12px]  font-[400]">{isUser ? data.email : BuyerData?.email}</p>
               </div>
               <div className="flex items-center my-2">
                 <div className=" relative w-5 h-5 mr-3">
@@ -864,7 +971,7 @@ const ProfilePage = () => {
                     alt="Phone Icon"
                   />
                 </div>
-                <p className="md:text-[14px] text-[12px] font-[400]">{data !== null ? data.phone : BuyerData?.phone}</p>
+                <p className="md:text-[14px] text-[12px] font-[400]">{isUser ? data.phone : BuyerData?.phone}</p>
               </div>
               <div className="flex items-center my-2">
                 <div className="relative w-5 h-5 mr-3">
@@ -876,7 +983,7 @@ const ProfilePage = () => {
                   />
                 </div>
                 <p className="md:text-[14px] text-[12px] font-[400]">
-                  {data !== null ? data.address : BuyerData?.address}               </p>
+                  {isUser ? data.address : BuyerData?.address}               </p>
               </div>
             </div>
           </div>
@@ -884,7 +991,7 @@ const ProfilePage = () => {
         <div className=" w-full  mt-5 md:mt-0 md:w-full md:flex-row flex flex-col ">
           <div className="w-full   px-6 ">
             <form className=" border-b border-[#DFDFDF] px-6 pb-6" onSubmit={handleSubmit}>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 <div>
                   <label
                     htmlFor="firstName"
@@ -929,7 +1036,7 @@ const ProfilePage = () => {
                     Select Country Code
                   </label>
                   <select
-                    className="block xl:w-full w-72 mt-1 -mb-4 xl:mb-0 rounded-md py-2.5 px-3 bg-[#B4C7ED0D] border-[#2668E826] border-2"
+                    className="w-full py-2 px-3 border border-[#2668E81A] rounded transition duration-300 bg-[#2668E803] focus:outline-none focus:border-[#2668E855] hover:border-[#2668E855]"
                     id="country-code"
                     onChange={handleCountryCodeChange}
                     value={selectedCountryCode}
@@ -942,6 +1049,7 @@ const ProfilePage = () => {
                     ))}
                   </select>
                 </div>
+
                 <div className="w-full mb-4 block">
                   <label htmlFor="full-number" className="text-[16px] font-normal text-[#777777]"
                   >Enter Full Number:</label>
@@ -950,18 +1058,8 @@ const ProfilePage = () => {
                     type="text"
                     id="phone"
                     name='phone'
-                    className="
-            block
-            xl:w-full
-            w-72
-            mt-1
-            -mb-4
-            xl:mb-0
-             
-            rounded-md
+                    className="w-full py-2 px-3 border border-[#2668E81A] rounded transition duration-300 bg-[#2668E803] focus:outline-none focus:border-[#2668E855] hover:border-[#2668E855]"
 
-             py-2 px-3 bg-[#B4C7ED0D] border-[#2668E826]  border-2
-          "
                     value={formData.phone}
                     readOnly={!selectedCountryCode}
                     onChange={handleChange}
@@ -989,7 +1087,7 @@ const ProfilePage = () => {
                   {errors.email && <div className="  px-1 justify-start text-[red] flex items-center  whitespace-nowrap rounded-lg  text-[black] mb-1 mt-1  mt-0">{errors.email}</div>}
                 </div>
 
-                <div>
+                {/* <div>
                   <label
                     htmlFor="country"
                     className="text-[16px] font-normal text-[#777777]"
@@ -1011,7 +1109,7 @@ const ProfilePage = () => {
                     ))}
                   </select>
                   {errors.country && <div className="  px-1 justify-start text-[red] flex items-center  whitespace-nowrap rounded-lg  text-[black] mb-1 mt-1  mt-0">{errors.country}</div>}
-                </div>
+                </div> */}
 
                 {
                   data !== null && <div className="w-full">
@@ -1028,7 +1126,7 @@ const ProfilePage = () => {
                       onChange={handleChange}
                       className="w-full py-2 px-3 border border-[#2668E81A] rounded transition duration-300 bg-[#2668E803] focus:outline-none focus:border-[#2668E855] hover:border-[#2668E855]"
                     >
-                      <option value="">Select Country</option>
+                      <option value="">Select Category</option>
                       <option value="Individual">Individual</option>
                       <option value="Company">Company</option>
                     </select>

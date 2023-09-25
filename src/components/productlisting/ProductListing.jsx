@@ -57,7 +57,7 @@ const ProductListing = () => {
   const deleteMutation = useMutation(
     ["FavoriteAdded"],
     async (id) => {
-      console.log("delte MUTATION", id)
+      console.log(" MUTATION", id)
       await FavoriteApi.deleteFavorite(id);
     },
     {

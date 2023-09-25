@@ -629,7 +629,7 @@ const Index = () => {
                             </thead>
 
                             <tbody>
-                                {sellerData !== null ?
+                                {sellerData !== null ? sellerData?.length !== 0 ?
                                     SellerData?.map((order) => (
                                         <tr
                                             key={order.id}
@@ -690,7 +690,7 @@ const Index = () => {
                                                 </Dropdown>
                                             </td>
                                         </tr>
-                                    )) :
+                                    )) : <h1>No orders found</h1> : BuyerData?.length !== 0 ?
                                     BuyerData?.map((order) => (
                                         <tr
                                             key={order.id}
@@ -752,13 +752,13 @@ const Index = () => {
                                                         />
                                                     </Dropdown>
                                                 </td> */}
-                                        </tr>))
+                                        </tr>)) : <h1>No orders found</h1>
 
                                 }
                             </tbody>
                         </table>
                         <div className="lg:hidden flex flex-col space-y-4">
-                            {sellerData !== null ?
+                            {sellerData !== null ? sellerData.length !== 0 ?
                                 SellerData?.map((order) => (
                                     <div
                                         key={order.id}
@@ -830,7 +830,7 @@ const Index = () => {
                                             </p>
                                         </div>
                                     </div>
-                                )) :
+                                )) : <h1>No orders found</h1> : BuyerData?.length !== 0 ?
                                 BuyerData?.map((order) => (
                                     <div
                                         key={order.id}
@@ -872,7 +872,7 @@ const Index = () => {
                                             </p>
                                         </div>
                                     </div>
-                                ))
+                                )) : <h1>No orders found</h1>
                             }
                             {/* <Pagination
                                 current={currentPage}

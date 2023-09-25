@@ -8,15 +8,33 @@ import { MdKeyboardArrowDown } from "react-icons/md";
 import Link from 'next/link';
 import { Select } from 'antd';
 import { useRouter } from 'next/router';
+import { Avatar } from 'antd';
+import { UserOutlined } from '@ant-design/icons';
+import { auth, db } from "../../../Firebase/firebase.js"
 
 const { Option } = Select;
 
 const UpperHeader = () => {
     const router = useRouter();
     const [Currency, setCurrency] = useState('USD');
-    // useEffect(() => {
-    //     router.push({ query: { currency: Currency } })
-    // })
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+    useEffect(() => {
+
+        const unsubscribe = auth.onAuthStateChanged(user => {
+            if (user) {
+                setIsLoggedIn(true);
+            } else {
+                setIsLoggedIn(false);
+            }
+        });
+
+        return () => {
+            // Unsubscribe from the listener when the component unmounts
+            unsubscribe();
+        };
+    }, []);
+
     const items = [
         {
             key: '1',
@@ -49,6 +67,7 @@ const UpperHeader = () => {
                         <Link href="/faq">FAQ</Link>
                     </ul>
                     <div className='flex gap-6 items-center font-[400]'>
+
                         <select defaultValue={"USD"}
                             className='bg-transparent outline-none'
                             value={Currency}
@@ -72,6 +91,16 @@ const UpperHeader = () => {
                                 value="USD">$USD</option>
                             <option className='text-[#000] outline-none' value="EUR">€EURO</option>
                         </select>
+                        <div className='flex lg:hidden'>
+                            {
+                                isLoggedIn ?
+                                    <Link href={'/profile'}>
+                                        <Avatar size={34} icon={<UserOutlined />} />
+                                    </Link>
+
+                                    : <Link href={"/login"} >LogIn</Link>
+                            }
+                        </div>
                     </div>
 
                 </div>

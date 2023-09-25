@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Wrapper from '../shared/Wrapper'
 import { IoBagAdd } from 'react-icons/io5'
 import { BsBoxFill } from 'react-icons/bs'
@@ -44,6 +44,7 @@ const Topbar = () => {
 
 
 
+
     const { data: SellerData, isLoading, isError } = useQuery(
         ['Sellers'],
         async () => {
@@ -53,6 +54,12 @@ const Topbar = () => {
 
         }
     );
+    useEffect(() => {
+        if (SellerData === null) {
+            setActiveItem("window4");
+        }
+    }, [SellerData]);
+
     const { data: buyerData, isLoading: buyerLoading, isError: buyerError } = useQuery(
         ['Buyers'],
         async () => {

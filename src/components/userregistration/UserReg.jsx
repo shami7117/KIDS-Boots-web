@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useState } from "react";
 import * as Yup from 'yup';
 import { v4 as uuidv4 } from "uuid";
@@ -21,19 +21,6 @@ const UserReg = () => {
 
 
   const countryCodes = [
-    { value: '+1', label: 'United States (+1)' },
-    { value: '+44', label: 'United Kingdom (+44)' },
-    { value: '+33', label: 'France (+33)' },
-    { value: '+49', label: 'Germany (+49)' },
-    { value: '+39', label: 'Italy (+39)' },
-    { value: '+34', label: 'Spain (+34)' },
-    { value: '+31', label: 'Netherlands (+31)' },
-    { value: '+41', label: 'Switzerland (+41)' },
-    { value: '+46', label: 'Sweden (+46)' },
-    { value: '+47', label: 'Norway (+47)' },
-    { value: '+91', label: 'India (+91)' },
-    { value: '+92', label: 'Pakistan (+92)' },
-    // Add more countries here
     { value: '+93', label: 'Afghanistan (+93)' },
     { value: '+355', label: 'Albania (+355)' },
     { value: '+213', label: 'Algeria (+213)' },
@@ -430,8 +417,15 @@ const UserReg = () => {
   const [searchText, setSearchText] = useState('');
   const [filteredCountries, setFilteredCountries] = useState(countries);
   const filteredCountryCodes = countryCodes.filter((country) =>
+
     country.label.toLowerCase().includes(searchText.toLowerCase())
+
   );
+
+
+
+
+
 
   const [loading, setLoading] = useState(false);
 
@@ -451,10 +445,33 @@ const UserReg = () => {
 
 
   const [selectedCountryCode, setSelectedCountryCode] = useState('');
+  const [selectedCountry, setSelectedCountry] = useState('');
+
+
+  // Find the country object with the matching code
+  const selectedCountries = countryCodes.filter((country) =>
+
+    country.value.toLowerCase().includes(selectedCountryCode.toLowerCase())
+
+  )
+
+  useEffect(() => {
+    const countryName = selectedCountries[0].label?.match(/^(.*?)\s+\(\+\d+\)$/);
+
+    if (countryName && countryName.length >= 2) {
+      const extractedCountryName = countryName[1];
+      setSelectedCountry(extractedCountryName)
+      console.log(extractedCountryName); // This will print "Honduras"
+    } else {
+      console.log("Country name not found in the input string");
+    }
+  })
+
   const [fullNumber, setFullNumber] = useState('');
 
   const handleCountryCodeChange = (e) => {
     const countryCode = e.target.value;
+    console.log(e.target.value)
     setSelectedCountryCode(countryCode);
     // setFullNumber(countryCode);
     setFormData({
@@ -523,9 +540,7 @@ const UserReg = () => {
       .required('Password confirmation is required')
       .oneOf([Yup.ref('password1'), null], 'Passwords must match'),
     address: Yup.string().required('Address is required'),
-    region: Yup.string().required('Please select a Region').test('not-select-category', 'Please select a Valid Region', value => {
-      return value !== 'Select Region';
-    }),
+
 
   });
 
@@ -582,8 +597,8 @@ const UserReg = () => {
         postCode: formData.postCode,
         city: formData.city,
         phone: formData.phone,
-        region: formData.region,
-        address: formData.address
+        region: selectedCountry,
+        address: formData.address,
       };
       await setDoc(docRef, values, { merge: true });
 
@@ -863,9 +878,9 @@ const UserReg = () => {
           </label>
           {errors.postCode && <div className="  px-1 justify-start text-[red] flex items-center  whitespace-nowrap rounded-lg  text-[black] mb-1 mt-1  mt-0">{errors.postCode}</div>}
         </div>
-        <div className="flex md:justify-between mb-3 flex-col md:flex-row">
-          <div>
-            <label className="block mb-6">
+        <div className="flex md:justify-start mb-3 flex-col md:flex-row">
+          <div className="w-full ">
+            <label className=" w-full  mb-6">
               <span className="text-[16px] font-[500] text-black">City*</span>
 
               <select
@@ -876,8 +891,7 @@ const UserReg = () => {
                 className="
             block
             text-[#777777]
-            xl:w-96
-                w-72
+           w-full
             -mb-4
             xl:mb-0
             mt-1
@@ -892,36 +906,6 @@ const UserReg = () => {
               </select>
               {errors.city && <div className="  px-1 justify-start text-[red] flex items-center  whitespace-nowrap rounded-lg  text-[black] mb-1 mt-1  mt-0">{errors.city}</div>}
             </label>
-          </div>
-          <div>
-            <label className="block mb-6">
-              <span className="text-[16px] font-[500] text-black">Country*</span>
-
-
-              <select name='country'
-                id='country'
-                className="
-            block
-            xl:w-96
-                w-72
-            -mb-4
-            xl:mb-0
-            mt-1
-             py-2 px-3  bg-[#B4C7ED0D] border-[#2668E826] border-2
-            rounded-md"
-                value={searchText}
-                onChange={handleSelectChange}
-              >
-                <option value="">Select a country</option>
-                {filteredCountries.map((country, index) => (
-                  <option key={index} value={country}>
-                    {country}
-                  </option>
-                ))}
-              </select>
-              {errors.region && <div className="  px-1 justify-start text-[red] flex items-center  whitespace-nowrap rounded-lg  text-[black] mb-1 mt-1  mt-0">{errors.region}</div>}
-            </label>
-
           </div>
 
         </div>

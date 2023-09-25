@@ -37,6 +37,8 @@ import {
     Timestamp
 } from "firebase/firestore";
 import { useRouter } from 'next/router'
+import axios from 'axios';
+
 import { useSearch } from './searchContext';
 import { debounce } from 'lodash';
 
@@ -124,6 +126,42 @@ const Navbar = () => {
 
     const [isOpen, setIsOpen] = useState(false);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+
+    const [userCountry, setUserCountry] = useState(null);
+
+
+
+    const apiKey = '67273a00-5c4b-11ed-9204-d161c2da74ce';
+    const apiUrl = `https://geolocation-db.com/json/${apiKey}`;
+
+    const getUserCountry = async () => {
+        try {
+            const response = await axios.get(apiUrl); // Use your geolocation API here
+            const { country_name } = response.data;
+
+            setUserCountry(country_name);
+            console.log(`User's country: ${country_name}`);
+            return country_name;
+        } catch (error) {
+            console.error('Error fetching user location:', error);
+            return null;
+        }
+    };
+
+    console.log("User's country:", userCountry);
+    const handleLocationClick = async () => {
+        const country = await getUserCountry();
+
+        if (country) {
+            router.push({
+                pathname: '/product-listing',
+                query: { country }
+            });
+        } else {
+            // Handle the case where userCountry is null or empty
+        }
+    };
 
     const contentStyle = {
         backgroundColor: token.colorBgElevated,
@@ -227,12 +265,12 @@ const Navbar = () => {
 
                                 </div>
                                 <div className="flex text-[black] gap-6 cursor-pointer ">
-                                    {isLoggedIn && <div className='p-2 rounded-full border border-[#0076AE1F] hover:bg-[#0076AE1F]'>
+                                    {/* {isLoggedIn && <div className='p-2 rounded-full border border-[#0076AE1F] hover:bg-[#0076AE1F]'>
                                         <BsBell size={21} />
                                         <p className="bg-primary-pink-color h-[10px] w-[10px] border border-white rounded-full flex items-center justify-center text-white text-[9px] absolute mt-[-1.3rem] ml-[0.5rem]">
 
                                         </p>
-                                    </div>}
+                                    </div>} */}
                                     <div className='flex justify-center items-center'>
                                         {
                                             isLoggedIn ?
@@ -284,20 +322,9 @@ const Navbar = () => {
                             </div>
                             <div className="flex flex-col justify-start items-start">
                                 <div className="flex flex-col basis-[50%]">
-                                    <ul className="flex-col  justify-between text-[16px] font-medium pb-6 flex md:flex-row space-x-12 items-center mt-6">
+                                    <ul className="flex-col  justify-between text-[16px] font-medium pb-6 flex space-x-12 items-start mt-6">
                                         <div className='flex-col gap-6 '>
-                                            <div className="relative">
-                                                <input
-                                                    type="text"
-                                                    className="h-[50px]  bg-[#F4F6F8]  px-5 py-2 rounded-[5px]"
-                                                    placeholder="Search Product here.."
-                                                />
-                                                <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-                                                    <svg width="15" height="16" viewBox="0 0 15 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                        <path d="M10.7204 10.1978H10.0429L9.80274 9.96959C10.6723 8.97546 11.1502 7.70629 11.1492 6.39369C11.1492 5.30691 10.8223 4.24453 10.2097 3.3409C9.59719 2.43727 8.72655 1.73297 7.70793 1.31708C6.6893 0.901185 5.56843 0.792367 4.48706 1.00439C3.40569 1.21641 2.41239 1.73975 1.63277 2.50822C0.853145 3.27669 0.322215 4.25579 0.107117 5.32169C-0.107981 6.3876 0.00241539 7.49243 0.424345 8.49649C0.846274 9.50055 1.56079 10.3587 2.47753 10.9625C3.39427 11.5663 4.47206 11.8886 5.57462 11.8886C6.9554 11.8886 8.2247 11.3898 9.2024 10.5614L9.43396 10.7981V11.4659L13.7221 15.6843L15 14.4247L10.7204 10.1978ZM5.57462 10.1978C3.43911 10.1978 1.71527 8.49866 1.71527 6.39369C1.71527 4.28873 3.43911 2.58954 5.57462 2.58954C7.71012 2.58954 9.43396 4.28873 9.43396 6.39369C9.43396 8.49866 7.71012 10.1978 5.57462 10.1978Z" fill="#777777" />
-                                                    </svg>
-                                                </div>
-                                            </div>
+
                                             <div className='flex flex-col gap-3 mt-3'>
 
                                                 <div className='flex flex-col justify-start items-start text-left gap-3'>
@@ -351,39 +378,44 @@ const Navbar = () => {
                                                     </Link>
                                                 </button>
                                             </div>
-                                            <div className='flex gap-3 items-center cursor-pointer mt-3'>
+                                            <div onClick={handleLocationClick}
+
+                                                className=' mt-4 gap-1 text-[black] whitespace-nowrap justify-start items-center cursor-pointer flex '>
 
                                                 <HiOutlineLocationMarker size={21} />
                                                 <p>
-                                                    United States, New York
+                                                    {userCountry !== null ? userCountry : <span>Enable Location</span>}
                                                 </p>
-                                                <MdKeyboardArrowDown size={21} />
+                                                {/* <MdKeyboardArrowDown size={21} /> */}
+                                            </div>
+                                            <Link href={"/shopping"} className="flex text-[black] mt-4 justify-start items-center  cursor-pointer  ">
+
+                                                <div className='p-2 rounded-full self-start border border-[#0076AE1F] hover:bg-[#0076AE1F]'>
+                                                    <BsCart3 size={15} />
+                                                    <p className="bg-primary-pink-color h-[7px] w-[7px] border border-white rounded-full flex items-center justify-start text-[#000] text-[9px] absolute mt-[-1.3rem] ml-[0.9rem]">
+
+                                                    </p>
+                                                </div>
+                                                <p className='ml-2'>Cart</p>
+                                            </Link>
+                                            <div className="relative  my-5 self-start">
+                                                <input
+                                                    type="text"
+                                                    value={state.searchText}
+                                                    onChange={handleInputChange}
+                                                    className="h-[50px]  bg-[#F4F6F8]  px-5 py-2 rounded-[5px]"
+                                                    placeholder="Search Product here.."
+                                                />
+                                                <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+                                                    <svg width="15" height="16" viewBox="0 0 15 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                        <path d="M10.7204 10.1978H10.0429L9.80274 9.96959C10.6723 8.97546 11.1502 7.70629 11.1492 6.39369C11.1492 5.30691 10.8223 4.24453 10.2097 3.3409C9.59719 2.43727 8.72655 1.73297 7.70793 1.31708C6.6893 0.901185 5.56843 0.792367 4.48706 1.00439C3.40569 1.21641 2.41239 1.73975 1.63277 2.50822C0.853145 3.27669 0.322215 4.25579 0.107117 5.32169C-0.107981 6.3876 0.00241539 7.49243 0.424345 8.49649C0.846274 9.50055 1.56079 10.3587 2.47753 10.9625C3.39427 11.5663 4.47206 11.8886 5.57462 11.8886C6.9554 11.8886 8.2247 11.3898 9.2024 10.5614L9.43396 10.7981V11.4659L13.7221 15.6843L15 14.4247L10.7204 10.1978ZM5.57462 10.1978C3.43911 10.1978 1.71527 8.49866 1.71527 6.39369C1.71527 4.28873 3.43911 2.58954 5.57462 2.58954C7.71012 2.58954 9.43396 4.28873 9.43396 6.39369C9.43396 8.49866 7.71012 10.1978 5.57462 10.1978Z" fill="#777777" />
+                                                    </svg>
+                                                </div>
                                             </div>
                                         </div>
-                                        <div className="mt-[7rem] flex text-[black] gap-6 cursor-pointer  ">
-                                            {isLoggedIn && <div className='p-2 rounded-full border border-[#0076AE1F] hover:bg-[#0076AE1F]'>
-                                                <BsBell onClick={async () => { await getUserCountry() }} size={21} />
-                                                <p className="bg-primary-pink-color h-[10px] w-[10px] border border-white rounded-full flex items-center justify-center text-white text-[9px] absolute mt-[-1.3rem] ml-[0.5rem]">
 
-                                                </p>
-                                            </div>}
-                                            <div >
-                                                {
-                                                    isLoggedIn ?
-                                                        <Link href={'/profile'}>
-                                                            <Avatar size={34} icon={<UserOutlined />} />
-                                                        </Link>
 
-                                                        : <Link href={"/login"} >LogIn</Link>
-                                                }
-                                            </div>
-                                            <div className='p-2 rounded-full border border-[#0076AE1F] hover:bg-[#0076AE1F]'>
-                                                <BsCart3 size={21} />
-                                                <p className="bg-primary-pink-color h-[10px] w-[10px] border border-white rounded-full flex items-center justify-center text-white text-[9px] absolute mt-[-1.3rem] ml-[0.9rem]">
 
-                                                </p>
-                                            </div>
-                                        </div>
 
 
 

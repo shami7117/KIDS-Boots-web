@@ -106,7 +106,7 @@ const Index = () => {
         else if (error.message === "Firebase: Error (auth/user-not-found).") {
           notification.open({
             type: "error",
-            message: "Wrong Email",
+            message: "User not found",
             placement: "top",
           });
         }
